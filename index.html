@@ -1854,7 +1854,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             // Service Worker registration
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js')
+                    navigator.serviceWorker.register('/bomultest/sw.js')
                         .then(registration => {
                             console.log('Service Worker registered successfully:', registration.scope);
                         })
@@ -1919,3 +1919,4 @@ document.getElementById('resetBtn').addEventListener('click', () => {
     <input type="file" id="importFile" accept=".json" style="display: none;">
 </body>
 </html>
+
