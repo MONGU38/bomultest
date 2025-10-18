@@ -3,11 +3,11 @@ const CACHE_NAME = 'treasure-box-v1';
 
 // 캐시할 파일들
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/app_icon512.png',
-  '/app_icon1024.png'
+  '/bomultest/',
+  '/bomultest/index.html',
+  '/bomultest/manifest.json',
+  '/bomultest/app_icon512.png',
+  '/bomultest/app_icon1024.png'
 ];
 
 // Service Worker 설치
