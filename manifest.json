@@ -1,6 +1,6 @@
 {
   "name": "보물창고",
-  "short_name": "보물창고",
+  "short_name": "보물test",
   "description": "중요한 자료를 카테고리별로 정리하는 앱",
   "start_url": "/bomultest/",
   "display": "standalone",
