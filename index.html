@@ -1794,17 +1794,28 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             categories.forEach(category => renderFolder(category));
         }
 
-       function selectFolderAndSave(categoryId, categoryName) {
+      function selectFolderAndSave(categoryId, categoryName) {
             // 공유 데이터 가져오기
             const sharedData = window.sharedData;
             if (!sharedData) return;
             
-           // 새 아이템 생성
+            // URL이 어디 있든 찾아내기
+            let finalUrl = sharedData.url || '';
+            let finalText = sharedData.text || '';
+            let finalTitle = sharedData.title || '제목 없음';
+            
+            // 만약 url이 비어있고 text에 URL이 있으면
+            if (!finalUrl && finalText && finalText.includes('http')) {
+                finalUrl = finalText;
+                finalText = '';
+            }
+            
+            // 새 아이템 생성
             const newItem = {
                 id: generateId(),
-                title: (sharedData.title || '제목 없음').slice(0, 20),
-                url: sharedData.url || '',
-                memo: sharedData.text || '',
+                title: finalTitle.slice(0, 20),
+                url: finalUrl,
+                memo: finalText,
                 createdAt: new Date().toISOString()
             };
 
@@ -1919,4 +1930,5 @@ document.getElementById('resetBtn').addEventListener('click', () => {
     <input type="file" id="importFile" accept=".json" style="display: none;">
 </body>
 </html>
+
 
