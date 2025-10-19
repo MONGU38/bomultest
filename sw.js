@@ -1,5 +1,6 @@
 // 캐시 이름
-const CACHE_NAME = 'treasure-box-v1';
+
+const CACHE_NAME = 'treasure-box-test-v2';
 
 // 캐시할 파일들
 const urlsToCache = [
