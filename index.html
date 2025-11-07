@@ -513,7 +513,7 @@
             }
             
             .legend-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(4, 1fr);
             }
             
             .button-group {
@@ -593,6 +593,7 @@
                         id="categoryNameInput" 
                         class="form-input" 
                         placeholder="카테고리 이름 (10자 이내)"
+                        maxlength="10"
                     >
                 </div>
                 <div class="form-actions">
@@ -716,7 +717,7 @@
                     <li class="help-item">• 각 레벨은 다른 색상으로 구분됩니다</li>
                     <li class="help-item">• 자료 제목에 [작은따옴표] 들어가지 않게 해주세요</li>
                     <li class="help-item">• 폴더를 펼치면 저장된 자료들을 제목으로 확인할 수 있습니다</li>
-                    <li class="help-item">• 문의사항: fbi1588@hanmail.net </li>
+                    <li class="help-item">• 문의사항: fbi1588@hanmail.net</li>
                 </ul>
         </div>
 
@@ -1188,7 +1189,18 @@
             categoryDiv.style.marginLeft = `${depth * 10}px`;
 
             categoryDiv.innerHTML = `
-                <div class="category-header ${colorClass}">
+                <div class="category-header ${colorClass}" 
+                     data-category-id="${category.id}"
+                     draggable="true"
+                     ondragstart="handleDragStart(event, '${category.id}')"
+                     ondragover="handleDragOver(event)"
+                     ondragenter="handleDragEnter(event)"
+                     ondragleave="handleDragLeave(event)"
+                     ondrop="handleDrop(event, '${category.id}')"
+                     ondragend="handleDragEnd(event)"
+                     ontouchstart="handleTouchStart(event, '${category.id}')"
+                     ontouchmove="handleTouchMove(event)"
+                     ontouchend="handleTouchEnd(event)">
                     <div class="category-left">
                         ${(hasChildren || hasItems) ? `
                             <button class="btn-icon" onclick="toggleCategory('${category.id}')" title="펼치기/접기">
@@ -1436,8 +1448,13 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                 if (e.key === 'Enter') addCategory();
             });
 
-            categoryNameInput.addEventListener('input', () => {
+            categoryNameInput.addEventListener('input', (e) => {
                 hideWarning();
+                
+                // 10자 입력 시 경고 표시
+                if (e.target.value.length >= 10) {
+                    showWarning('폴더명은 10자까지만 입력할 수 있습니다');
+                }
             });
 
             // Item form
@@ -1659,6 +1676,136 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                 saveData();
                 renderApp();
             }
+        }
+
+        // 드래그 앤 드롭 관련 변수
+        let draggedCategory = null;
+        let draggedElement = null;
+
+        // 드래그 시작
+        function handleDragStart(e, categoryId) {
+            draggedCategory = findCategoryById(categoryId);
+            draggedElement = e.currentTarget;
+            e.currentTarget.style.opacity = '0.5';
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        // 드래그 중
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+
+        // 드래그 진입
+        function handleDragEnter(e) {
+            e.currentTarget.style.background = '#fef3c7';
+        }
+
+        // 드래그 이탈
+        function handleDragLeave(e) {
+            e.currentTarget.style.background = '';
+        }
+
+        // 드롭
+        function handleDrop(e, targetCategoryId) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            const targetCategory = findCategoryById(targetCategoryId);
+            
+            // 같은 부모를 가진 경우만 순서 변경
+            if (draggedCategory.parentId === targetCategory.parentId) {
+                const parentCategories = draggedCategory.parentId 
+                    ? findCategoryById(draggedCategory.parentId).children 
+                    : categories;
+
+                const draggedIndex = parentCategories.findIndex(cat => cat.id === draggedCategory.id);
+                const targetIndex = parentCategories.findIndex(cat => cat.id === targetCategoryId);
+
+                // 배열에서 순서 변경
+                const [removed] = parentCategories.splice(draggedIndex, 1);
+                parentCategories.splice(targetIndex, 0, removed);
+
+                saveData();
+                renderApp();
+            }
+
+            e.currentTarget.style.background = '';
+            return false;
+        }
+
+        // 드래그 종료
+        function handleDragEnd(e) {
+            e.currentTarget.style.opacity = '1';
+            draggedCategory = null;
+            draggedElement = null;
+        }
+
+        // 터치 이벤트 처리 (폰용)
+        let touchStartY = 0;
+        let touchCategory = null;
+        let touchElement = null;
+
+        function handleTouchStart(e, categoryId) {
+            touchStartY = e.touches[0].clientY;
+            touchCategory = findCategoryById(categoryId);
+            touchElement = e.currentTarget;
+            touchElement.style.opacity = '0.5';
+        }
+
+        function handleTouchMove(e) {
+            if (!touchCategory) return;
+            
+            e.preventDefault();
+            const touchY = e.touches[0].clientY;
+            const element = document.elementFromPoint(e.touches[0].clientX, touchY);
+            
+            if (element && element.closest('.category-header')) {
+                document.querySelectorAll('.category-header').forEach(el => {
+                    el.style.background = '';
+                });
+                element.closest('.category-header').style.background = '#fef3c7';
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (!touchCategory) return;
+
+            const touchY = e.changedTouches[0].clientY;
+            const element = document.elementFromPoint(e.changedTouches[0].clientX, touchY);
+            
+            if (element && element.closest('.category-header')) {
+                const targetElement = element.closest('.category-header');
+                const targetId = targetElement.getAttribute('data-category-id');
+                
+                if (targetId) {
+                    const targetCategory = findCategoryById(targetId);
+                    
+                    if (touchCategory.parentId === targetCategory.parentId) {
+                        const parentCategories = touchCategory.parentId 
+                            ? findCategoryById(touchCategory.parentId).children 
+                            : categories;
+
+                        const draggedIndex = parentCategories.findIndex(cat => cat.id === touchCategory.id);
+                        const targetIndex = parentCategories.findIndex(cat => cat.id === targetId);
+
+                        const [removed] = parentCategories.splice(draggedIndex, 1);
+                        parentCategories.splice(targetIndex, 0, removed);
+
+                        saveData();
+                        renderApp();
+                    }
+                }
+            }
+
+            document.querySelectorAll('.category-header').forEach(el => {
+                el.style.background = '';
+                el.style.opacity = '1';
+            });
+            
+            touchCategory = null;
+            touchElement = null;
         }
         // 백업 함수
         function exportData() {
@@ -1919,6 +2066,15 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         window.moveCategoryUp = moveCategoryUp;
         window.moveCategoryDown = moveCategoryDown;
         window.updateCategoryName = updateCategoryName;
+        window.handleDragStart = handleDragStart;
+        window.handleDragOver = handleDragOver;
+        window.handleDragEnter = handleDragEnter;
+        window.handleDragLeave = handleDragLeave;
+        window.handleDrop = handleDrop;
+        window.handleDragEnd = handleDragEnd;
+        window.handleTouchStart = handleTouchStart;
+        window.handleTouchMove = handleTouchMove;
+        window.handleTouchEnd = handleTouchEnd;
 
         // Start the app when DOM is loaded
         document.addEventListener('DOMContentLoaded', initializeApp);
@@ -1926,6 +2082,4 @@ document.getElementById('resetBtn').addEventListener('click', () => {
     <input type="file" id="importFile" accept=".json" style="display: none;">
 </body>
 </html>
-
-
 
