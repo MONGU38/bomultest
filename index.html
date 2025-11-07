@@ -1744,22 +1744,49 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 
         // 터치 이벤트 처리 (폰용)
         let touchStartY = 0;
+        let touchStartX = 0;
         let touchCategory = null;
         let touchElement = null;
+        let touchStartTime = 0;
+        let isDragging = false;
+        let longPressTimer = null;
 
         function handleTouchStart(e, categoryId) {
             touchStartY = e.touches[0].clientY;
-            touchCategory = findCategoryById(categoryId);
-            touchElement = e.currentTarget;
-            touchElement.style.opacity = '0.5';
+            touchStartX = e.touches[0].clientX;
+            touchStartTime = Date.now();
+            isDragging = false;
+            
+            // 500ms 이상 누르면 드래그 모드 활성화
+            longPressTimer = setTimeout(() => {
+                isDragging = true;
+                touchCategory = findCategoryById(categoryId);
+                touchElement = e.currentTarget;
+                touchElement.style.opacity = '0.5';
+                touchElement.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+                
+                // 진동 피드백 (지원되는 경우)
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            }, 500);
         }
 
         function handleTouchMove(e) {
-            if (!touchCategory) return;
+            const moveX = e.touches[0].clientX;
+            const moveY = e.touches[0].clientY;
+            const distanceX = Math.abs(moveX - touchStartX);
+            const distanceY = Math.abs(moveY - touchStartY);
+            
+            // 10px 이상 움직이면 롱프레스 취소
+            if (distanceX > 10 || distanceY > 10) {
+                clearTimeout(longPressTimer);
+            }
+            
+            if (!isDragging || !touchCategory) return;
             
             e.preventDefault();
-            const touchY = e.touches[0].clientY;
-            const element = document.elementFromPoint(e.touches[0].clientX, touchY);
+            const element = document.elementFromPoint(moveX, moveY);
             
             if (element && element.closest('.category-header')) {
                 document.querySelectorAll('.category-header').forEach(el => {
@@ -1770,16 +1797,33 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         }
 
         function handleTouchEnd(e) {
-            if (!touchCategory) return;
+            clearTimeout(longPressTimer);
+            
+            // 드래그 모드가 아니었으면 클릭 이벤트가 자연스럽게 발생하도록 허용
+            if (!isDragging) {
+                touchCategory = null;
+                touchElement = null;
+                return;
+            }
+            
+            // 드래그 모드였으면 클릭 이벤트 방지
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (!touchCategory) {
+                isDragging = false;
+                return;
+            }
 
+            const touchX = e.changedTouches[0].clientX;
             const touchY = e.changedTouches[0].clientY;
-            const element = document.elementFromPoint(e.changedTouches[0].clientX, touchY);
+            const element = document.elementFromPoint(touchX, touchY);
             
             if (element && element.closest('.category-header')) {
                 const targetElement = element.closest('.category-header');
                 const targetId = targetElement.getAttribute('data-category-id');
                 
-                if (targetId) {
+                if (targetId && targetId !== touchCategory.id) {
                     const targetCategory = findCategoryById(targetId);
                     
                     if (touchCategory.parentId === targetCategory.parentId) {
@@ -1802,10 +1846,12 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             document.querySelectorAll('.category-header').forEach(el => {
                 el.style.background = '';
                 el.style.opacity = '1';
+                el.style.boxShadow = '';
             });
             
             touchCategory = null;
             touchElement = null;
+            isDragging = false;
         }
         // 백업 함수
         function exportData() {
