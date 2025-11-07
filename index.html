@@ -1752,6 +1752,12 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         let longPressTimer = null;
 
         function handleTouchStart(e, categoryId) {
+            // 이전 타이머 정리
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+            
             touchStartY = e.touches[0].clientY;
             touchStartX = e.touches[0].clientX;
             touchStartTime = Date.now();
