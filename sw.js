@@ -1,6 +1,6 @@
-// 캐시 이름
-
-const CACHE_NAME = 'treasure-box-test-v2';
+// 캐시 버전 (업데이트할 때마다 이 숫자를 올리세요!)
+const CACHE_VERSION = new Date().toISOString();
+const CACHE_NAME = `treasure-box-v${CACHE_VERSION}`;
 
 // 캐시할 파일들
 const urlsToCache = [
@@ -21,12 +21,26 @@ self.addEventListener('install', function(event) {
   );
 });
 
+// Service Worker 활성화 및 구버전 캐시 삭제
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.map(function(cacheName) {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
+
 // 네트워크 요청 처리
 self.addEventListener('fetch', function(event) {
   event.respondWith(
     caches.match(event.request)
       .then(function(response) {
-        // 캐시에 있으면 캐시에서, 없으면 네트워크에서
         return response || fetch(event.request);
       }
     )
