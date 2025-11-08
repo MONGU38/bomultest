@@ -535,14 +535,68 @@
             border: 1px solid #bfdbfe;
             border-radius: 0.5rem;
         }
-
-        .current-location-text {
+.current-location-text {
             font-size: 0.875rem;
             color: #1e40af;
+        }
+
+        /* Update Notification */
+        .update-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateX(-50%) translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .update-notification.show {
+            display: flex;
+        }
+
+        .update-btn {
+            background: white;
+            color: #10b981;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .update-btn:hover {
+            background: #f0f0f0;
         }
     </style>
 </head>
 <body>
+    <!-- Update Notification -->
+    <div id="updateNotification" class="update-notification">
+        <span style="font-size: 20px;">🎉</span>
+        <span>새 버전이 있습니다!</span>
+        <button class="update-btn" onclick="updateApp()">업데이트</button>
+    </div>
+
     <div class="bg-gradient">
         <div class="container">
             <!-- Header -->
@@ -2051,18 +2105,48 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             // 공유 데이터 정리
             delete window.sharedData;
         }
+
+        // 업데이트 알림 표시
+        function showUpdateNotification() {
+            const notification = document.getElementById('updateNotification');
+            notification.classList.add('show');
+        }
+
+        // 앱 업데이트
+        function updateApp() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistration().then(registration => {
+                    if (registration && registration.waiting) {
+                        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                });
+                // 페이지 새로고침
+                window.location.reload();
+            }
+        }
         // Initialize App
         function initializeApp() {
             categories = loadData();
             initializeEventListeners();
             renderApp();
 
-            // Service Worker registration
+            // Service Worker registration with auto-update
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('/bomultest/sw.js')
                         .then(registration => {
                             console.log('Service Worker registered successfully:', registration.scope);
+                            
+                            // 업데이트 확인
+                            registration.addEventListener('updatefound', () => {
+                                const newWorker = registration.installing;
+                                newWorker.addEventListener('statechange', () => {
+                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                        // 새 버전 감지!
+                                        showUpdateNotification();
+                                    }
+                                });
+                            });
                         })
                         .catch(error => {
                             console.log('Service Worker registration failed:', error);
