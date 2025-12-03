@@ -199,6 +199,14 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
+        .category-header.dragging {
+            opacity: 0.5;
+        }
+
+        .category-header.drag-over {
+            border-top: 3px solid #3b82f6;
+        }
+
         .category-left {
             display: flex;
             align-items: center;
@@ -213,6 +221,8 @@
 
         .category-name {
             font-weight: 500;
+            font-size: 0.85rem;
+            white-space: nowrap;
         }
 
         .item-count {
@@ -535,79 +545,110 @@
             border: 1px solid #bfdbfe;
             border-radius: 0.5rem;
         }
-        
+
         .current-location-text {
             font-size: 0.875rem;
             color: #1e40af;
         }
 
-        /* Hide code display at top */
-        body::before {
-            display: none !important;
-        }
-        
-        pre, code {
-            display: none !important;
-        }
-
-        /* Update Notification */
-        .update-notification {
+        /* Splash Screen */
+        .splash-screen {
             position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #10b981;
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            z-index: 9999;
-            display: none;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
+            display: flex;
             align-items: center;
-            gap: 1rem;
-            animation: slideDown 0.3s ease;
+            justify-content: center;
+            z-index: 9999;
         }
 
-        @keyframes slideDown {
+        .splash-content {
+            text-align: center;
+            color: #1e40af;
+            padding: 40px;
+        }
+
+        .splash-content h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .splash-message {
+            font-size: 16px;
+            font-weight: 400;
+            margin-bottom: 40px;
+            opacity: 0.95;
+            line-height: 1.6;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .splash-message p {
+            margin-bottom: 8px;
+        }
+
+        .loading-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(30, 64, 175, 0.3);
+            border-radius: 2px;
+            margin: 0 auto;
+            overflow: hidden;
+            animation: fadeInUp 1.2s ease-out 0.4s both;
+        }
+
+        .loading-progress {
+            width: 0;
+            height: 100%;
+            background: #1e40af;
+            border-radius: 2px;
+            animation: loadingBar 3s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
             from {
-                transform: translateX(-50%) translateY(-100px);
                 opacity: 0;
+                transform: translateY(30px);
             }
             to {
-                transform: translateX(-50%) translateY(0);
                 opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        .update-notification.show {
-            display: flex;
-        }
-
-        .update-btn {
-            background: white;
-            color: #10b981;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0.25rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .update-btn:hover {
-            background: #f0f0f0;
+        @keyframes loadingBar {
+            to {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Update Notification -->
-    <div id="updateNotification" class="update-notification">
-        <span style="font-size: 20px;">🎉</span>
-        <span>새 버전이 있습니다!</span>
-        <button class="update-btn" onclick="updateApp()">업데이트</button>
+    <!-- 초기 안내 화면 -->
+    <div id="splash-screen" class="splash-screen">
+        <div class="splash-content">
+            <h1>📦 보물창고</h1>
+            <div class="splash-message">
+                <p>"어디서 봤는데... 어디더라?"</p>
+                <p>이런 경험 있으신가요?</p>
+                <p></p>
+                <p>중요한 링크, 영상, 정보를</p>
+                <p>폴더별로 정리하고</p>
+                <p>검색으로 바로 찾으세요.</p>
+                <p></p>
+                <p>보물창고가 기억해드립니다.</p>
+            </div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="bg-gradient">
+    <div class="bg-gradient" id="main-app" style="display: none;">
         <div class="container">
             <!-- Header -->
             <div class="header">
@@ -656,8 +697,9 @@
                         type="text" 
                         id="categoryNameInput" 
                         class="form-input" 
-                        placeholder="카테고리 이름 (10자 이내)"
-                        maxlength="10"
+                        placeholder="카테고리 이름 (5자 이내)"
+                        maxlength="5"
+                        oninput="checkCategoryNameLength(this)"
                     >
                 </div>
                 <div class="form-actions">
@@ -781,7 +823,7 @@
                     <li class="help-item">• 각 레벨은 다른 색상으로 구분됩니다</li>
                     <li class="help-item">• 자료 제목에 [작은따옴표] 들어가지 않게 해주세요</li>
                     <li class="help-item">• 폴더를 펼치면 저장된 자료들을 제목으로 확인할 수 있습니다</li>
-                    <li class="help-item">• 문의사항: fbi1588@hanmail.net</li>
+                    <li class="help-item">• 문의사항: fbi1588@hanmail.net </li>
                 </ul>
         </div>
 
@@ -900,7 +942,33 @@
         function loadData() {
             try {
                 const saved = localStorage.getItem('treasureBoxData');
-                return saved ? JSON.parse(saved) : [];
+                if (saved) {
+                    return JSON.parse(saved);
+                }
+                
+                // localStorage가 비어있으면 IndexedDB에서 복원 시도
+                if (window.indexedDB) {
+                    const request = indexedDB.open('TreasureBoxDB', 1);
+                    request.onsuccess = (e) => {
+                        const db = e.target.result;
+                        if (db.objectStoreNames.contains('backups')) {
+                            const tx = db.transaction('backups', 'readonly');
+                            const store = tx.objectStore('backups');
+                            const getRequest = store.get('autoBackup');
+                            
+                            getRequest.onsuccess = () => {
+                                if (getRequest.result) {
+                                    categories = getRequest.result;
+                                    saveData();
+                                    renderApp();
+                                    alert('💾 백업에서 자료를 복원했습니다!');
+                                }
+                            };
+                        }
+                    };
+                }
+                
+                return [];
             } catch (error) {
                 console.error('데이터 불러오기 실패:', error);
                 return [];
@@ -1253,18 +1321,7 @@
             categoryDiv.style.marginLeft = `${depth * 10}px`;
 
             categoryDiv.innerHTML = `
-                <div class="category-header ${colorClass}" 
-                     data-category-id="${category.id}"
-                     draggable="true"
-                     ondragstart="handleDragStart(event, '${category.id}')"
-                     ondragover="handleDragOver(event)"
-                     ondragenter="handleDragEnter(event)"
-                     ondragleave="handleDragLeave(event)"
-                     ondrop="handleDrop(event, '${category.id}')"
-                     ondragend="handleDragEnd(event)"
-                     ontouchstart="handleTouchStart(event, '${category.id}')"
-                     ontouchmove="handleTouchMove(event)"
-                     ontouchend="handleTouchEnd(event)">
+                <div class="category-header ${colorClass}">
                     <div class="category-left">
                         ${(hasChildren || hasItems) ? `
                             <button class="btn-icon" onclick="toggleCategory('${category.id}')" title="펼치기/접기">
@@ -1420,6 +1477,43 @@
                 }, 0);
             }
 
+            // 드래그 이벤트 추가
+            const header = categoryDiv.querySelector('.category-header');
+            header.draggable = true;
+            
+            header.addEventListener('dragstart', (e) => {
+                header.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', category.id);
+            });
+            
+            header.addEventListener('dragend', (e) => {
+                header.classList.remove('dragging');
+                document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            });
+            
+            header.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                header.classList.add('drag-over');
+            });
+            
+            header.addEventListener('dragleave', (e) => {
+                header.classList.remove('drag-over');
+            });
+            
+            header.addEventListener('drop', (e) => {
+                e.preventDefault();
+                header.classList.remove('drag-over');
+                
+                const draggedId = e.dataTransfer.getData('text/plain');
+                const targetId = category.id;
+                
+                if (draggedId !== targetId) {
+                    swapCategories(draggedId, targetId);
+                }
+            });
+
             return categoryDiv;
         }
 
@@ -1512,13 +1606,8 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                 if (e.key === 'Enter') addCategory();
             });
 
-            categoryNameInput.addEventListener('input', (e) => {
+            categoryNameInput.addEventListener('input', () => {
                 hideWarning();
-                
-                // 10자 입력 시 경고 표시
-                if (e.target.value.length >= 10) {
-                    showWarning('폴더명은 10자까지만 입력할 수 있습니다');
-                }
             });
 
             // Item form
@@ -1741,187 +1830,43 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                 renderApp();
             }
         }
-
-        // 드래그 앤 드롭 관련 변수
-        let draggedCategory = null;
-        let draggedElement = null;
-
-        // 드래그 시작
-        function handleDragStart(e, categoryId) {
-            draggedCategory = findCategoryById(categoryId);
-            draggedElement = e.currentTarget;
-            e.currentTarget.style.opacity = '0.5';
-            e.dataTransfer.effectAllowed = 'move';
-        }
-
-        // 드래그 중
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            return false;
-        }
-
-        // 드래그 진입
-        function handleDragEnter(e) {
-            e.currentTarget.style.background = '#fef3c7';
-        }
-
-        // 드래그 이탈
-        function handleDragLeave(e) {
-            e.currentTarget.style.background = '';
-        }
-
-        // 드롭
-        function handleDrop(e, targetCategoryId) {
-            e.stopPropagation();
-            e.preventDefault();
-
-            const targetCategory = findCategoryById(targetCategoryId);
-            
-            // 같은 부모를 가진 경우만 순서 변경
-            if (draggedCategory.parentId === targetCategory.parentId) {
-                const parentCategories = draggedCategory.parentId 
-                    ? findCategoryById(draggedCategory.parentId).children 
-                    : categories;
-
-                const draggedIndex = parentCategories.findIndex(cat => cat.id === draggedCategory.id);
-                const targetIndex = parentCategories.findIndex(cat => cat.id === targetCategoryId);
-
-                // 배열에서 순서 변경
-                const [removed] = parentCategories.splice(draggedIndex, 1);
-                parentCategories.splice(targetIndex, 0, removed);
-
-                saveData();
-                renderApp();
-            }
-
-            e.currentTarget.style.background = '';
-            return false;
-        }
-
-        // 드래그 종료
-        function handleDragEnd(e) {
-            e.currentTarget.style.opacity = '1';
-            draggedCategory = null;
-            draggedElement = null;
-        }
-
-        // 터치 이벤트 처리 (폰용)
-        let touchStartY = 0;
-        let touchStartX = 0;
-        let touchCategory = null;
-        let touchElement = null;
-        let touchStartTime = 0;
-        let isDragging = false;
-        let longPressTimer = null;
-
-        function handleTouchStart(e, categoryId) {
-            // 이전 타이머 정리
-            if (longPressTimer) {
-                clearTimeout(longPressTimer);
-                longPressTimer = null;
-            }
-            
-            touchStartY = e.touches[0].clientY;
-            touchStartX = e.touches[0].clientX;
-            touchStartTime = Date.now();
-            isDragging = false;
-            
-            // 500ms 이상 누르면 드래그 모드 활성화
-            longPressTimer = setTimeout(() => {
-                isDragging = true;
-                touchCategory = findCategoryById(categoryId);
-                touchElement = e.currentTarget;
-                touchElement.style.opacity = '0.5';
-                touchElement.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
-                
-                // 진동 피드백 (지원되는 경우)
-                if (navigator.vibrate) {
-                    navigator.vibrate(50);
-                }
-            }, 500);
-        }
-
-        function handleTouchMove(e) {
-            const moveX = e.touches[0].clientX;
-            const moveY = e.touches[0].clientY;
-            const distanceX = Math.abs(moveX - touchStartX);
-            const distanceY = Math.abs(moveY - touchStartY);
-            
-            // 10px 이상 움직이면 롱프레스 취소
-            if (distanceX > 10 || distanceY > 10) {
-                clearTimeout(longPressTimer);
-            }
-            
-            if (!isDragging || !touchCategory) return;
-            
-            e.preventDefault();
-            const element = document.elementFromPoint(moveX, moveY);
-            
-            if (element && element.closest('.category-header')) {
-                document.querySelectorAll('.category-header').forEach(el => {
-                    el.style.background = '';
-                });
-                element.closest('.category-header').style.background = '#fef3c7';
+        function checkCategoryNameLength(input) {
+            if (input.value.length >= 5) {
+                showWarning('폴더명은 5자 이내로 입력해주세요');
+            } else {
+                hideWarning();
             }
         }
-
-        function handleTouchEnd(e) {
-            clearTimeout(longPressTimer);
-            
-            // 드래그 모드가 아니었으면 클릭 이벤트가 자연스럽게 발생하도록 허용
-            if (!isDragging) {
-                touchCategory = null;
-                touchElement = null;
-                return;
-            }
-            
-            // 드래그 모드였으면 클릭 이벤트 방지
-            e.preventDefault();
-            e.stopPropagation();
-            
-            if (!touchCategory) {
-                isDragging = false;
-                return;
-            }
-
-            const touchX = e.changedTouches[0].clientX;
-            const touchY = e.changedTouches[0].clientY;
-            const element = document.elementFromPoint(touchX, touchY);
-            
-            if (element && element.closest('.category-header')) {
-                const targetElement = element.closest('.category-header');
-                const targetId = targetElement.getAttribute('data-category-id');
-                
-                if (targetId && targetId !== touchCategory.id) {
-                    const targetCategory = findCategoryById(targetId);
-                    
-                    if (touchCategory.parentId === targetCategory.parentId) {
-                        const parentCategories = touchCategory.parentId 
-                            ? findCategoryById(touchCategory.parentId).children 
-                            : categories;
-
-                        const draggedIndex = parentCategories.findIndex(cat => cat.id === touchCategory.id);
-                        const targetIndex = parentCategories.findIndex(cat => cat.id === targetId);
-
-                        const [removed] = parentCategories.splice(draggedIndex, 1);
-                        parentCategories.splice(targetIndex, 0, removed);
-
-                        saveData();
-                        renderApp();
+        function swapCategories(draggedId, targetId) {
+            // 같은 레벨의 카테고리들을 찾는 함수
+            function findSameLevelCategories(catId, cats = categories, parent = null) {
+                for (let i = 0; i < cats.length; i++) {
+                    if (cats[i].id === catId) {
+                        return { list: cats, parent: parent };
+                    }
+                    if (cats[i].children && cats[i].children.length > 0) {
+                        const found = findSameLevelCategories(catId, cats[i].children, cats[i]);
+                        if (found) return found;
                     }
                 }
+                return null;
             }
-
-            document.querySelectorAll('.category-header').forEach(el => {
-                el.style.background = '';
-                el.style.opacity = '1';
-                el.style.boxShadow = '';
-            });
             
-            touchCategory = null;
-            touchElement = null;
-            isDragging = false;
+            const draggedLocation = findSameLevelCategories(draggedId);
+            const targetLocation = findSameLevelCategories(targetId);
+            
+            // 같은 레벨에 있는지 확인
+            if (draggedLocation && targetLocation && draggedLocation.list === targetLocation.list) {
+                const list = draggedLocation.list;
+                const draggedIndex = list.findIndex(cat => cat.id === draggedId);
+                const targetIndex = list.findIndex(cat => cat.id === targetId);
+                
+                if (draggedIndex !== -1 && targetIndex !== -1) {
+                    [list[draggedIndex], list[targetIndex]] = [list[targetIndex], list[draggedIndex]];
+                    saveData();
+                    renderApp();
+                }
+            }
         }
         // 백업 함수
         function exportData() {
@@ -2053,28 +1998,17 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             categories.forEach(category => renderFolder(category));
         }
 
-      function selectFolderAndSave(categoryId, categoryName) {
+       function selectFolderAndSave(categoryId, categoryName) {
             // 공유 데이터 가져오기
             const sharedData = window.sharedData;
             if (!sharedData) return;
             
-            // URL이 어디 있든 찾아내기
-            let finalUrl = sharedData.url || '';
-            let finalText = sharedData.text || '';
-            let finalTitle = sharedData.title || '제목 없음';
-            
-            // 만약 url이 비어있고 text에 URL이 있으면
-            if (!finalUrl && finalText && finalText.includes('http')) {
-                finalUrl = finalText;
-                finalText = '';
-            }
-            
-            // 새 아이템 생성
+           // 새 아이템 생성
             const newItem = {
                 id: generateId(),
-                title: finalTitle.slice(0, 20),
-                url: finalUrl,
-                memo: finalText,
+                title: (sharedData.title || '제목 없음').slice(0, 20),
+                url: sharedData.url || '',
+                memo: sharedData.text || '',
                 createdAt: new Date().toISOString()
             };
 
@@ -2115,48 +2049,18 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             // 공유 데이터 정리
             delete window.sharedData;
         }
-
-        // 업데이트 알림 표시
-        function showUpdateNotification() {
-            const notification = document.getElementById('updateNotification');
-            notification.classList.add('show');
-        }
-
-        // 앱 업데이트
-        function updateApp() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistration().then(registration => {
-                    if (registration && registration.waiting) {
-                        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-                    }
-                });
-                // 페이지 새로고침
-                window.location.reload();
-            }
-        }
         // Initialize App
         function initializeApp() {
             categories = loadData();
             initializeEventListeners();
             renderApp();
 
-            // Service Worker registration with auto-update
+            // Service Worker registration
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/bomultest/sw.js')
+                    navigator.serviceWorker.register('/sw.js')
                         .then(registration => {
                             console.log('Service Worker registered successfully:', registration.scope);
-                            
-                            // 업데이트 확인
-                            registration.addEventListener('updatefound', () => {
-                                const newWorker = registration.installing;
-                                newWorker.addEventListener('statechange', () => {
-                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                        // 새 버전 감지!
-                                        showUpdateNotification();
-                                    }
-                                });
-                            });
                         })
                         .catch(error => {
                             console.log('Service Worker registration failed:', error);
@@ -2212,20 +2116,19 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         window.moveCategoryUp = moveCategoryUp;
         window.moveCategoryDown = moveCategoryDown;
         window.updateCategoryName = updateCategoryName;
-        window.handleDragStart = handleDragStart;
-        window.handleDragOver = handleDragOver;
-        window.handleDragEnter = handleDragEnter;
-        window.handleDragLeave = handleDragLeave;
-        window.handleDrop = handleDrop;
-        window.handleDragEnd = handleDragEnd;
-        window.handleTouchStart = handleTouchStart;
-        window.handleTouchMove = handleTouchMove;
-        window.handleTouchEnd = handleTouchEnd;
+        window.swapCategories = swapCategories;
 
         // Start the app when DOM is loaded
-        document.addEventListener('DOMContentLoaded', initializeApp);
+        document.addEventListener('DOMContentLoaded', () => {
+            // 3초 후 초기 화면 숨기고 메인 앱 표시
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+            }, 3000);
+            
+            initializeApp();
+        });
     </script>
     <input type="file" id="importFile" accept=".json" style="display: none;">
 </body>
 </html>
-
