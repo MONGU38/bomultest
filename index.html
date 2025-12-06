@@ -2003,12 +2003,25 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             const sharedData = window.sharedData;
             if (!sharedData) return;
             
+            // URL 자동 추출
+            let finalUrl = sharedData.url || '';
+            let finalMemo = sharedData.text || '';
+            
+            // text에 URL이 있으면 추출
+            if (!finalUrl && finalMemo) {
+                const urlMatch = finalMemo.match(/(https?:\/\/[^\s]+)/);
+                if (urlMatch) {
+                    finalUrl = urlMatch[0];
+                    finalMemo = finalMemo.replace(urlMatch[0], '').trim();
+                }
+            }
+            
            // 새 아이템 생성
             const newItem = {
                 id: generateId(),
                 title: (sharedData.title || '제목 없음').slice(0, 20),
-                url: sharedData.url || '',
-                memo: sharedData.text || '',
+                url: finalUrl,
+                memo: finalMemo,
                 createdAt: new Date().toISOString()
             };
 
