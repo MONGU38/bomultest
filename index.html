@@ -1977,7 +1977,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                     </div>
                 `;
                 
-                folderDiv.onclick = () => selectFolderAndSave(category.id, category.name);
+                folderDiv.onclick = () => confirmFolderSelection(category.id, category.name);
                 folderDiv.onmouseover = () => {
                     folderDiv.style.transform = 'scale(1.02)';
                     folderDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
@@ -1996,6 +1996,11 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             };
 
             categories.forEach(category => renderFolder(category));
+        }
+        function confirmFolderSelection(categoryId, categoryName) {
+            if (confirm(`📁 "${categoryName}" 폴더에 저장하시겠습니까?`)) {
+                selectFolderAndSave(categoryId, categoryName);
+            }
         }
 
        function selectFolderAndSave(categoryId, categoryName) {
