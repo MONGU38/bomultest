@@ -891,6 +891,7 @@
         let searchTerm = '';
         let filteredCategories = [];
         let deleteConfirmData = null;
+        let recentFolders = JSON.parse(localStorage.getItem('recentFolders') || '[]');
 
         // DOM Elements
         const searchInput = document.getElementById('searchInput');
@@ -1295,6 +1296,8 @@
                 expandedCategories.delete(categoryId);
             } else {
                 expandedCategories.add(categoryId);
+                const cat = findCategoryById(categoryId);
+                if (cat) saveRecentFolder(categoryId, cat.name);
             }
             renderApp();
         }
@@ -1546,9 +1549,34 @@ if (searchTerm) {
                 noSearchResults.classList.add('hidden');
                 
                 // Render categories
-                currentCategories.forEach(category => {
-                    container.appendChild(renderCategory(category));
-                });
+                if (!searchTerm && recentFolders.length > 0) {
+                    const recentIds = recentFolders.map(f => f.id);
+                    const recentTop = currentCategories.filter(c => recentIds.includes(c.id));
+                    const others = currentCategories.filter(c => !recentIds.includes(c.id));
+                    recentTop.sort((a, b) => recentIds.indexOf(a.id) - recentIds.indexOf(b.id));
+
+                    if (recentTop.length > 0) {
+                        const recentLabel = document.createElement('div');
+                        recentLabel.style.cssText = 'padding: 0.25rem 0.5rem; font-size: 0.8rem; color: #dc2626; font-weight: bold; margin-bottom: 0.25rem;';
+                        recentLabel.textContent = '🔥 최근 사용한 폴더';
+                        container.appendChild(recentLabel);
+                        recentTop.forEach(category => container.appendChild(renderCategory(category)));
+
+                        const divider = document.createElement('div');
+                        divider.style.cssText = 'border-top: 1px dashed #d1d5db; margin: 0.5rem 0;';
+                        container.appendChild(divider);
+
+                        const allLabel = document.createElement('div');
+                        allLabel.style.cssText = 'padding: 0.25rem 0.5rem; font-size: 0.8rem; color: #6b7280; font-weight: bold; margin-bottom: 0.25rem;';
+                        allLabel.textContent = '📁 전체 폴더';
+                        container.appendChild(allLabel);
+                    }
+                    others.forEach(category => container.appendChild(renderCategory(category)));
+                } else {
+                    currentCategories.forEach(category => {
+                        container.appendChild(renderCategory(category));
+                    });
+                }
             }
         }
 
@@ -1995,10 +2023,48 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                 }
             };
 
+            if (recentFolders.length > 0) {
+                const recentIds = recentFolders.map(f => f.id);
+                const getAllCategories = (cats, result = []) => {
+                    cats.forEach(cat => {
+                        result.push(cat);
+                        if (cat.children && cat.children.length > 0) getAllCategories(cat.children, result);
+                    });
+                    return result;
+                };
+                const allCats = getAllCategories(categories);
+                const recentCats = recentIds.map(id => allCats.find(c => c.id === id)).filter(Boolean);
+
+                if (recentCats.length > 0) {
+                    const recentLabel = document.createElement('div');
+                    recentLabel.style.cssText = 'padding: 0.25rem 0.5rem; font-size: 0.8rem; color: #dc2626; font-weight: bold;';
+                    recentLabel.textContent = '🔥 최근 사용한 폴더';
+                    folderList.appendChild(recentLabel);
+                    recentCats.forEach(cat => renderFolder(cat, 0));
+
+                    const divider = document.createElement('div');
+                    divider.style.cssText = 'border-top: 1px dashed #d1d5db; margin: 0.5rem 0;';
+                    folderList.appendChild(divider);
+
+                    const allLabel = document.createElement('div');
+                    allLabel.style.cssText = 'padding: 0.25rem 0.5rem; font-size: 0.8rem; color: #6b7280; font-weight: bold;';
+                    allLabel.textContent = '📁 전체 폴더';
+                    folderList.appendChild(allLabel);
+                }
+            }
+
             categories.forEach(category => renderFolder(category));
+        }
+        
+        function saveRecentFolder(categoryId, categoryName) {
+            recentFolders = recentFolders.filter(f => f.id !== categoryId);
+            recentFolders.unshift({ id: categoryId, name: categoryName, lastUsed: Date.now() });
+            if (recentFolders.length > 10) recentFolders = recentFolders.slice(0, 10);
+            localStorage.setItem('recentFolders', JSON.stringify(recentFolders));
         }
         function confirmFolderSelection(categoryId, categoryName) {
             if (confirm(`📁 "${categoryName}" 폴더에 저장하시겠습니까?`)) {
+                saveRecentFolder(categoryId, categoryName);
                 selectFolderAndSave(categoryId, categoryName);
             }
         }
