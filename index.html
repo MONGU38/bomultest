@@ -223,9 +223,6 @@
             font-weight: 500;
             font-size: 0.85rem;
             white-space: nowrap;
-            max-width: 80px;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .item-count {
@@ -1347,7 +1344,7 @@
                             >
                             
                         ` : `
-                            <span class="category-name">${category.name}</span>
+                    <span class="category-name">${category.name.length > 4 ? category.name.slice(0, 4) + '..' : category.name}</span>
                             ${hasItems ? `<span class="item-count">${category.items.length}개</span>` : ''}
                         `}
                     </div>
