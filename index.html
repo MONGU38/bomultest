@@ -223,6 +223,9 @@
             font-weight: 500;
             font-size: 0.85rem;
             white-space: nowrap;
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .item-count {
@@ -1555,22 +1558,7 @@ if (searchTerm) {
                     const others = currentCategories.filter(c => !recentIds.includes(c.id));
                     recentTop.sort((a, b) => recentIds.indexOf(a.id) - recentIds.indexOf(b.id));
 
-                    if (recentTop.length > 0) {
-                        const recentLabel = document.createElement('div');
-                        recentLabel.style.cssText = 'padding: 0.25rem 0.5rem; font-size: 0.8rem; color: #dc2626; font-weight: bold; margin-bottom: 0.25rem;';
-                        recentLabel.textContent = '🔥 최근 사용한 폴더';
-                        container.appendChild(recentLabel);
-                        recentTop.forEach(category => container.appendChild(renderCategory(category)));
-
-                        const divider = document.createElement('div');
-                        divider.style.cssText = 'border-top: 1px dashed #d1d5db; margin: 0.5rem 0;';
-                        container.appendChild(divider);
-
-                        const allLabel = document.createElement('div');
-                        allLabel.style.cssText = 'padding: 0.25rem 0.5rem; font-size: 0.8rem; color: #6b7280; font-weight: bold; margin-bottom: 0.25rem;';
-                        allLabel.textContent = '📁 전체 폴더';
-                        container.appendChild(allLabel);
-                    }
+                    recentTop.forEach(category => container.appendChild(renderCategory(category)));
                     others.forEach(category => container.appendChild(renderCategory(category)));
                 } else {
                     currentCategories.forEach(category => {
@@ -2035,22 +2023,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                 const allCats = getAllCategories(categories);
                 const recentCats = recentIds.map(id => allCats.find(c => c.id === id)).filter(Boolean);
 
-                if (recentCats.length > 0) {
-                    const recentLabel = document.createElement('div');
-                    recentLabel.style.cssText = 'padding: 0.25rem 0.5rem; font-size: 0.8rem; color: #dc2626; font-weight: bold;';
-                    recentLabel.textContent = '🔥 최근 사용한 폴더';
-                    folderList.appendChild(recentLabel);
-                    recentCats.forEach(cat => renderFolder(cat, 0));
-
-                    const divider = document.createElement('div');
-                    divider.style.cssText = 'border-top: 1px dashed #d1d5db; margin: 0.5rem 0;';
-                    folderList.appendChild(divider);
-
-                    const allLabel = document.createElement('div');
-                    allLabel.style.cssText = 'padding: 0.25rem 0.5rem; font-size: 0.8rem; color: #6b7280; font-weight: bold;';
-                    allLabel.textContent = '📁 전체 폴더';
-                    folderList.appendChild(allLabel);
-                }
+                recentCats.forEach(cat => renderFolder(cat, 0));
             }
 
             categories.forEach(category => renderFolder(category));
