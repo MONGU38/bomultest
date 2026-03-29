@@ -2008,21 +2008,6 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                 }
             };
 
-            if (recentFolders.length > 0) {
-                const recentIds = recentFolders.map(f => f.id);
-                const getAllCategories = (cats, result = []) => {
-                    cats.forEach(cat => {
-                        result.push(cat);
-                        if (cat.children && cat.children.length > 0) getAllCategories(cat.children, result);
-                    });
-                    return result;
-                };
-                const allCats = getAllCategories(categories);
-                const recentCats = recentIds.map(id => allCats.find(c => c.id === id)).filter(Boolean);
-
-                recentCats.forEach(cat => renderFolder(cat, 0));
-            }
-
             categories.forEach(category => renderFolder(category));
         }
         
