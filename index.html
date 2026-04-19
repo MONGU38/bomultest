@@ -828,7 +828,7 @@
         </div>
 
             <!-- Backup Section -->
-            <div class="help" style="margin-top: 1rem;">
+            <div class="help" style="margin-top: 1rem; display: none;">
                 <h3 class="help-title">💾 데이터 백업</h3>
                 <div style="display: flex; gap: 0.5rem; justify-content: center;">
                     <button id="exportBtn" class="btn btn-success">
@@ -878,7 +878,23 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp as fbInitializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBxR81or12CziM9UV-SNupfNRkPdmBoimM",
+            authDomain: "bofirebasepr.firebaseapp.com",
+            projectId: "bofirebasepr",
+            storageBucket: "bofirebasepr.firebasestorage.app",
+            messagingSenderId: "193631083349",
+            appId: "1:193631083349:web:0bda9f8ce6682c8fafeddc"
+        };
+
+        const app = fbInitializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const USER_ID = "user1";
+
         // Global State
         let categories = [];
         let expandedCategories = new Set();
@@ -940,35 +956,12 @@
         }
 
         // Data Management
-        function loadData() {
+        async function loadData() {
             try {
-                const saved = localStorage.getItem('treasureBoxData');
-                if (saved) {
-                    return JSON.parse(saved);
+                const snap = await getDoc(doc(db, 'users', USER_ID));
+                if (snap.exists()) {
+                    return JSON.parse(snap.data().categories);
                 }
-                
-                // localStorage가 비어있으면 IndexedDB에서 복원 시도
-                if (window.indexedDB) {
-                    const request = indexedDB.open('TreasureBoxDB', 1);
-                    request.onsuccess = (e) => {
-                        const db = e.target.result;
-                        if (db.objectStoreNames.contains('backups')) {
-                            const tx = db.transaction('backups', 'readonly');
-                            const store = tx.objectStore('backups');
-                            const getRequest = store.get('autoBackup');
-                            
-                            getRequest.onsuccess = () => {
-                                if (getRequest.result) {
-                                    categories = getRequest.result;
-                                    saveData();
-                                    renderApp();
-                                    alert('💾 백업에서 자료를 복원했습니다!');
-                                }
-                            };
-                        }
-                    };
-                }
-                
                 return [];
             } catch (error) {
                 console.error('데이터 불러오기 실패:', error);
@@ -976,9 +969,9 @@
             }
         }
 
-        function saveData() {
+        async function saveData() {
             try {
-                localStorage.setItem('treasureBoxData', JSON.stringify(categories));
+                await setDoc(doc(db, 'users', USER_ID), { categories: JSON.stringify(categories) });
             } catch (error) {
                 console.error('데이터 저장 실패:', error);
             }
@@ -2008,6 +2001,21 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                 }
             };
 
+            if (recentFolders.length > 0) {
+                const recentIds = recentFolders.map(f => f.id);
+                const getAllCategories = (cats, result = []) => {
+                    cats.forEach(cat => {
+                        result.push(cat);
+                        if (cat.children && cat.children.length > 0) getAllCategories(cat.children, result);
+                    });
+                    return result;
+                };
+                const allCats = getAllCategories(categories);
+                const recentCats = recentIds.map(id => allCats.find(c => c.id === id)).filter(Boolean);
+
+                recentCats.forEach(cat => renderFolder(cat, 0));
+            }
+
             categories.forEach(category => renderFolder(category));
         }
         
@@ -2089,8 +2097,8 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             delete window.sharedData;
         }
         // Initialize App
-        function initializeApp() {
-            categories = loadData();
+        async function initializeApp() {
+            categories = await loadData();
             initializeEventListeners();
             renderApp();
 
