@@ -2105,7 +2105,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             // Service Worker registration
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js')
+                    navigator.serviceWorker.register('/bomultest/sw.js')
                         .then(registration => {
                             console.log('Service Worker registered successfully:', registration.scope);
                         })
@@ -2116,35 +2116,23 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             }
 
             // Handle shared data
-            window.addEventListener('load', () => {
-                const urlParams = new URLSearchParams(window.location.search);
-                const sharedTitle = urlParams.get('title');
-                const sharedText = urlParams.get('text');
-                const sharedUrl = urlParams.get('url');
-                
-              if (sharedTitle || sharedText || sharedUrl) {
-                    console.log('공유된 데이터:', {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sharedTitle = urlParams.get('title');
+            const sharedText = urlParams.get('text');
+            const sharedUrl = urlParams.get('url');
+            
+            if (sharedTitle || sharedText || sharedUrl) {
+                if (categories.length > 0) {
+                    window.sharedData = {
                         title: sharedTitle,
-                        text: sharedText,
-                        url: sharedUrl
-                    });
-                    
-                    // 공유된 데이터로 폴더 선택 모달 표시
-                    if (categories.length > 0) {
-                        // 공유된 데이터를 전역 변수에 저장
-                        window.sharedData = {
-                            title: sharedTitle,
-                            url: sharedUrl,
-                            text: sharedText
-                        };
-                        
-                        // 폴더 선택 모달 표시
-                        showFolderSelectionModal();
-                    } else {
-                        alert('📁 먼저 카테고리를 만든 후 공유 기능을 사용해주세요!');
-                    }
+                        url: sharedUrl,
+                        text: sharedText
+                    };
+                    showFolderSelectionModal();
+                } else {
+                    alert('📁 먼저 카테고리를 만든 후 공유 기능을 사용해주세요!');
                 }
-            });
+            }
         }
 
 
