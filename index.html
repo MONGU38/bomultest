@@ -880,7 +880,7 @@
     <script type="module">
         import { initializeApp as fbInitializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getAuth, signInWithRedirect, onAuthStateChanged, GoogleAuthProvider, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithPopup, onAuthStateChanged, GoogleAuthProvider, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBxR81or12CziM9UV-SNupfNRkPdmBoimM",
@@ -2117,7 +2117,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                     renderApp();
                 } else {
                     setPersistence(auth, browserLocalPersistence).then(() => {
-                        signInWithRedirect(auth, provider);
+                        signInWithPopup(auth, provider);
                     });
                 }
             });
