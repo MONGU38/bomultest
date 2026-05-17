@@ -828,21 +828,20 @@
         </div>
 
             <!-- Backup Section -->
-            <div class="help" style="margin-top: 1rem; display: none;">
-                <h3 class="help-title">💾 데이터 백업</h3>
-                <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                    <button id="exportBtn" class="btn btn-success">
-                        <span>💾</span>
-                        <span>백업</span>
-                    </button>
-                    <button id="importBtn" class="btn btn-secondary">
-                        <span>📁</span>
-                        <span>복원</span>
-                    </button>
+            <div class="help" style="margin-top: 1rem; text-align: center;">
+                <button onclick="toggleDataManagement()" class="btn btn-gray" style="margin-bottom: 0.5rem;">💾 데이터 관리</button>
+                <div id="data-management" style="display: none; margin-top: 10px;">
+                    <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                        <button id="exportBtn" class="btn btn-success">
+                            <span>💾</span>
+                            <span>백업</span>
+                        </button>
+                        <button id="importBtn" class="btn btn-secondary">
+                            <span>📁</span>
+                            <span>복원</span>
+                        </button>
+                    </div>
                 </div>
-                <p style="font-size: 0.75rem; color: #6b7280; text-align: center; margin-top: 0.5rem;">
-                    정기적으로 백업하여 소중한 데이터를 안전하게 보관하세요. 폰에서만 적용됩니다.
-                </p>
             </div>
         </div>
     </div>
@@ -1876,6 +1875,11 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                 }
             }
         }
+        function toggleDataManagement() {
+            const menu = document.getElementById('data-management');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+
         // 백업 함수
         function exportData() {
             const data = {
@@ -2162,6 +2166,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         window.moveCategoryDown = moveCategoryDown;
         window.updateCategoryName = updateCategoryName;
         window.swapCategories = swapCategories;
+        window.toggleDataManagement = toggleDataManagement;
 
         // Start the app when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
