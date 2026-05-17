@@ -2109,6 +2109,9 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     USER_ID = user.uid;
+                    document.getElementById('splash-screen').style.display = 'none';
+                    document.getElementById('main-app').style.display = 'block';
+                    document.getElementById('data-management').style.display = 'none';
                     categories = await loadData();
                     initializeEventListeners();
                     renderApp();
