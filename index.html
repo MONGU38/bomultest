@@ -881,6 +881,7 @@
     <script type="module">
         import { initializeApp as fbInitializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBxR81or12CziM9UV-SNupfNRkPdmBoimM",
@@ -893,6 +894,7 @@
 
         const app = fbInitializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
         const USER_ID = "user1";
 
         // Global State
@@ -2098,6 +2100,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         }
         // Initialize App
         async function initializeApp() {
+            await signInAnonymously(auth);
             categories = await loadData();
             initializeEventListeners();
             renderApp();
