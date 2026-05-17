@@ -880,7 +880,7 @@
     <script type="module">
         import { initializeApp as fbInitializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithRedirect, onAuthStateChanged, GoogleAuthProvider, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBxR81or12CziM9UV-SNupfNRkPdmBoimM",
@@ -894,6 +894,8 @@
         const app = fbInitializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ login_hint: 'fbi1588@gmail.com', prompt: 'none' });
         let USER_ID = "user1";
 
         // Global State
@@ -2104,17 +2106,18 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         }
         // Initialize App
         async function initializeApp() {
-            const savedUID = localStorage.getItem('bomul_uid');
-            if (savedUID) {
-                USER_ID = savedUID;
-            } else {
-                const userCredential = await signInAnonymously(auth);
-                USER_ID = userCredential.user.uid;
-                localStorage.setItem('bomul_uid', USER_ID);
-            }
-            categories = await loadData();
-            initializeEventListeners();
-            renderApp();
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    USER_ID = user.uid;
+                    categories = await loadData();
+                    initializeEventListeners();
+                    renderApp();
+                } else {
+                    setPersistence(auth, browserLocalPersistence).then(() => {
+                        signInWithRedirect(auth, provider);
+                    });
+                }
+            });
 
             // Service Worker registration
             if ('serviceWorker' in navigator) {
@@ -2170,12 +2173,6 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 
         // Start the app when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
-            // 3초 후 초기 화면 숨기고 메인 앱 표시
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-            }, 3000);
-            
             initializeApp();
         });
     </script>
