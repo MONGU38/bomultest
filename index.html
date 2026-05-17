@@ -895,7 +895,7 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ login_hint: 'fbi1588@gmail.com', prompt: 'none' });
+        provider.setCustomParameters({ login_hint: 'fbi1588@gmail.com' });
         let USER_ID = "user1";
 
         // Global State
