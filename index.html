@@ -2100,8 +2100,14 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         }
         // Initialize App
         async function initializeApp() {
-            const userCredential = await signInAnonymously(auth);
-            USER_ID = userCredential.user.uid;
+            const savedUID = localStorage.getItem('bomul_uid');
+            if (savedUID) {
+                USER_ID = savedUID;
+            } else {
+                const userCredential = await signInAnonymously(auth);
+                USER_ID = userCredential.user.uid;
+                localStorage.setItem('bomul_uid', USER_ID);
+            }
             categories = await loadData();
             initializeEventListeners();
             renderApp();
