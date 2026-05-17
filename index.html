@@ -895,7 +895,7 @@
         const app = fbInitializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        const USER_ID = "user1";
+        let USER_ID = "user1";
 
         // Global State
         let categories = [];
@@ -2100,7 +2100,8 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         }
         // Initialize App
         async function initializeApp() {
-            await signInAnonymously(auth);
+            const userCredential = await signInAnonymously(auth);
+            USER_ID = userCredential.user.uid;
             categories = await loadData();
             initializeEventListeners();
             renderApp();
