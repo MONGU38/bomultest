@@ -880,7 +880,7 @@
     <script type="module">
         import { initializeApp as fbInitializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getAuth, signInWithPopup, onAuthStateChanged, GoogleAuthProvider, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithRedirect, onAuthStateChanged, GoogleAuthProvider, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBxR81or12CziM9UV-SNupfNRkPdmBoimM",
@@ -2117,7 +2117,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                     renderApp();
                 } else {
                     setPersistence(auth, browserLocalPersistence).then(() => {
-                        signInWithPopup(auth, provider);
+                        signInWithRedirect(auth, provider);
                     });
                 }
             });
@@ -2175,9 +2175,9 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         window.toggleDataManagement = toggleDataManagement;
 
         // Start the app when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onload = function() {
             initializeApp();
-        });
+        };
     </script>
     <input type="file" id="importFile" accept=".json" style="display: none;">
 </body>
