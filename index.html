@@ -878,25 +878,7 @@
     </div>
 
     <script type="module">
-        import { initializeApp as fbInitializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getAuth, signInWithRedirect, onAuthStateChanged, GoogleAuthProvider, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBxR81or12CziM9UV-SNupfNRkPdmBoimM",
-            authDomain: "bofirebasepr.firebaseapp.com",
-            projectId: "bofirebasepr",
-            storageBucket: "bofirebasepr.firebasestorage.app",
-            messagingSenderId: "193631083349",
-            appId: "1:193631083349:web:0bda9f8ce6682c8fafeddc"
-        };
-
-        const app = fbInitializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ login_hint: 'fbi1588@gmail.com' });
-        let USER_ID = "user1";
+        
 
         // Global State
         let categories = [];
@@ -959,22 +941,19 @@
         }
 
         // Data Management
-        async function loadData() {
+        function loadData() {
             try {
-                const snap = await getDoc(doc(db, 'users', USER_ID));
-                if (snap.exists()) {
-                    return JSON.parse(snap.data().categories);
-                }
-                return [];
+                const data = localStorage.getItem('bomulchanggo');
+                return data ? JSON.parse(data) : [];
             } catch (error) {
                 console.error('데이터 불러오기 실패:', error);
                 return [];
             }
         }
 
-        async function saveData() {
+        function saveData() {
             try {
-                await setDoc(doc(db, 'users', USER_ID), { categories: JSON.stringify(categories) });
+                localStorage.setItem('bomulchanggo', JSON.stringify(categories));
             } catch (error) {
                 console.error('데이터 저장 실패:', error);
             }
@@ -2106,33 +2085,17 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         }
         // Initialize App
         async function initializeApp() {
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    USER_ID = user.uid;
-                    document.getElementById('splash-screen').style.display = 'none';
-                    document.getElementById('main-app').style.display = 'block';
-                    document.getElementById('data-management').style.display = 'none';
-                    categories = await loadData();
-                    initializeEventListeners();
-                    renderApp();
-                } else {
-                    setPersistence(auth, browserLocalPersistence).then(() => {
-                        signInWithRedirect(auth, provider);
-                    });
-                }
-            });
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                document.getElementById('data-management').style.display = 'none';
+                categories = loadData();
+                initializeEventListeners();
+                renderApp();
+            }, 3000);
 
-            // Service Worker registration
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/bomultest/sw.js')
-                        .then(registration => {
-                            console.log('Service Worker registered successfully:', registration.scope);
-                        })
-                        .catch(error => {
-                            console.log('Service Worker registration failed:', error);
-                        });
-                });
+                navigator.serviceWorker.register('/bomultest/sw.js');
             }
 
             // Handle shared data
