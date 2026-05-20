@@ -2086,39 +2086,40 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         // Initialize App
         async function initializeApp() {
             categories = loadData();
-            setTimeout(() => {
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const sharedTitle = urlParams.get('title');
+            const sharedText = urlParams.get('text');
+            const sharedUrl = urlParams.get('url');
+            const isShared = sharedTitle || sharedText || sharedUrl;
+
+            if (isShared && categories.length > 0) {
+                window.sharedData = {
+                    title: sharedTitle,
+                    url: sharedUrl,
+                    text: sharedText
+                };
                 document.getElementById('splash-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
                 document.getElementById('data-management').style.display = 'none';
                 initializeEventListeners();
                 renderApp();
-            }, 3000);
+                showFolderSelectionModal();
+            } else if (isShared && categories.length === 0) {
+                alert('📁 먼저 카테고리를 만든 후 공유 기능을 사용해주세요!');
+            } else {
+                setTimeout(() => {
+                    document.getElementById('splash-screen').style.display = 'none';
+                    document.getElementById('main-app').style.display = 'block';
+                    document.getElementById('data-management').style.display = 'none';
+                    initializeEventListeners();
+                    renderApp();
+                }, 3000);
+            }
 
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/bomultest/sw.js');
             }
-
-            // Handle shared data
-            
-            window.addEventListener('load', () => {
-                const urlParams = new URLSearchParams(window.location.search);
-                const sharedTitle = urlParams.get('title');
-                const sharedText = urlParams.get('text');
-                const sharedUrl = urlParams.get('url');
-
-                if (sharedTitle || sharedText || sharedUrl) {
-                    if (categories.length > 0) {
-                        window.sharedData = {
-                            title: sharedTitle,
-                            url: sharedUrl,
-                            text: sharedText
-                        };
-                        showFolderSelectionModal();
-                    } else {
-                        alert('📁 먼저 카테고리를 만든 후 공유 기능을 사용해주세요!');
-                    }
-                }
-            });
         }
 
 
