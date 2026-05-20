@@ -2085,11 +2085,11 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         }
         // Initialize App
         async function initializeApp() {
+            categories = loadData();
             setTimeout(() => {
                 document.getElementById('splash-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
                 document.getElementById('data-management').style.display = 'none';
-                categories = loadData();
                 initializeEventListeners();
                 renderApp();
             }, 3000);
@@ -2099,23 +2099,26 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             }
 
             // Handle shared data
-            const urlParams = new URLSearchParams(window.location.search);
-            const sharedTitle = urlParams.get('title');
-            const sharedText = urlParams.get('text');
-            const sharedUrl = urlParams.get('url');
             
-            if (sharedTitle || sharedText || sharedUrl) {
-                if (categories.length > 0) {
-                    window.sharedData = {
-                        title: sharedTitle,
-                        url: sharedUrl,
-                        text: sharedText
-                    };
-                    showFolderSelectionModal();
-                } else {
-                    alert('📁 먼저 카테고리를 만든 후 공유 기능을 사용해주세요!');
+            window.addEventListener('load', () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const sharedTitle = urlParams.get('title');
+                const sharedText = urlParams.get('text');
+                const sharedUrl = urlParams.get('url');
+
+                if (sharedTitle || sharedText || sharedUrl) {
+                    if (categories.length > 0) {
+                        window.sharedData = {
+                            title: sharedTitle,
+                            url: sharedUrl,
+                            text: sharedText
+                        };
+                        showFolderSelectionModal();
+                    } else {
+                        alert('📁 먼저 카테고리를 만든 후 공유 기능을 사용해주세요!');
+                    }
                 }
-            }
+            });
         }
 
 
