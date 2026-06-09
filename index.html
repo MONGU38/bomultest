@@ -1922,7 +1922,11 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                         <h3 class="modal-title">📁 저장할 폴더 선택</h3>
                         <div class="modal-content">
                             <p>🎬 공유받은 영상을 어느 폴더에 저장하시겠습니까?</p>
-                            <div id="folderSelectionList" style="max-height: 300px; overflow-y: auto; margin: 1rem 0;">
+                            <div style="margin-bottom: 0.75rem;">
+                                <input type="text" id="newFolderInput" placeholder="새 폴더명 입력 (5자 이내)" maxlength="5" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none;">
+                                <button onclick="addFolderFromModal()" style="margin-top: 0.5rem; width: 100%; padding: 0.5rem; background: #ea580c; color: white; border: none; border-radius: 0.5rem; font-size: 0.875rem; cursor: pointer;">+ 새 폴더 만들기</button>
+                            </div>
+                            <div id="folderSelectionList" style="max-height: 250px; overflow-y: auto; margin: 1rem 0;">
                                 <!-- 폴더 목록이 여기에 들어감 -->
                             </div>
                         </div>
@@ -2075,6 +2079,31 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             delete window.sharedData;
         }
 
+        function addFolderFromModal() {
+            const input = document.getElementById('newFolderInput');
+            const name = input.value.trim();
+            if (!name) {
+                alert('폴더명을 입력해주세요.');
+                return;
+            }
+            if (checkDuplicateName(name)) {
+                alert('같은 이름의 폴더가 있습니다.');
+                return;
+            }
+            const newCategory = {
+                id: generateId(),
+                name: name,
+                level: 1,
+                parentId: null,
+                children: [],
+                items: []
+            };
+            categories = [...categories, newCategory];
+            saveData();
+            input.value = '';
+            renderFolderSelectionList();
+        }
+
         function closeFolderSelectionModal() {
             const modal = document.getElementById('folderSelectionModal');
             if (modal) {
@@ -2140,6 +2169,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         window.updateCategoryName = updateCategoryName;
         window.swapCategories = swapCategories;
         window.toggleDataManagement = toggleDataManagement;
+        window.addFolderFromModal = addFolderFromModal;
 
         // Start the app when DOM is loaded
         window.onload = function() {
