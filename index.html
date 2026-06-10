@@ -1337,7 +1337,7 @@
         <span style="font-size: 14px;">+</span>
     </button>
 ` : ''}
-                            <button class="btn-icon" onclick="editingId='${category.id}'; renderApp()" title="이름 수정">
+                            <button class="btn-icon" onclick="startEditing('${category.id}')" title="이름 수정">
                                 <span style="font-size: 14px;">✏️</span>
                             </button>
                             <button class="btn-icon" onclick="moveCategoryUp('${category.id}')" title="위로 이동">
@@ -2170,6 +2170,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         window.swapCategories = swapCategories;
         window.toggleDataManagement = toggleDataManagement;
         window.addFolderFromModal = addFolderFromModal;
+        window.startEditing = function(id) { editingId = id; renderApp(); };
 
         // Start the app when DOM is loaded
         window.onload = function() {
