@@ -877,7 +877,7 @@
         </div>
     </div>
 
-    <script type="module">
+    <script>
         
 
         // Global State
@@ -2175,6 +2175,12 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         window.onload = function() {
             initializeApp();
         };
+
+        window.addEventListener('popstate', function() {
+            history.pushState(null, '', location.href);
+        });
+
+        history.pushState(null, '', location.href);
     </script>
     <input type="file" id="importFile" accept=".json" style="display: none;">
 </body>
