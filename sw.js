@@ -8,6 +8,7 @@ const urlsToCache = [
   '/bomultest/app_icon1024.png'
 ];
 self.addEventListener('install', function(event) {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(function(cache) {
@@ -25,16 +26,24 @@ self.addEventListener('activate', function(event) {
           }
         })
       );
+    }).then(function() {
+      return self.clients.claim();
     })
   );
 });
 self.addEventListener('fetch', function(event) {
   if (event.request.url.includes('sw.js')) return;
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then(function(response) {
-        return response || fetch(event.request);
-      }
-    )
+        const responseClone = response.clone();
+        caches.open(CACHE_NAME).then(function(cache) {
+          cache.put(event.request, responseClone);
+        });
+        return response;
+      })
+      .catch(function() {
+        return caches.match(event.request);
+      })
   );
 });
