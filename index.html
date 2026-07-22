@@ -1945,24 +1945,24 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         }
 
         function renderFolderSelectionList() {
-            const folderList = document.getElementById('folderSelectionList');
-            folderList.innerHTML = '';
+    const folderList = document.getElementById('folderSelectionList');
+    folderList.innerHTML = '';
 
-            const renderFolder = (category, depth = 0) => {
-                const folderDiv = document.createElement('div');
-                folderDiv.style.marginLeft = `${depth * 20}px`;
-                folderDiv.style.padding = '0.75rem';
-                folderDiv.style.border = '2px solid';
-                folderDiv.style.borderRadius = '0.5rem';
-                folderDiv.style.margin = '0.5rem 0';
-                folderDiv.style.cursor = 'pointer';
-                folderDiv.style.transition = 'all 0.2s';
-                
-                const colorClass = getColorClassForLevel(category.level);
-                folderDiv.className = colorClass;
-                
-                // 레벨별 들여쓰기 시각화
-                const indentBars = '│ '.repeat(Math.max(0, depth));
+    const renderFolder = (category, depth = 0) => {
+        const folderDiv = document.createElement('div');
+        folderDiv.style.marginLeft = `${depth * 20}px`;
+        folderDiv.style.padding = '0.75rem';
+        folderDiv.style.border = '2px solid';
+        folderDiv.style.borderRadius = '0.5rem';
+        folderDiv.style.margin = '0.5rem 0';
+        folderDiv.style.cursor = 'pointer';
+        folderDiv.style.transition = 'all 0.2s';
+
+        const colorClass = getColorClassForLevel(category.level);
+        folderDiv.className = colorClass;
+
+        // 레벨별 들여쓰기 시각화
+        const indentBars = ' '.repeat(Math.max(0, depth));
                 const levelPrefix = '';
                 
                 folderDiv.innerHTML = `
@@ -2079,30 +2079,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             delete window.sharedData;
         }
 
-        function addFolderFromModal() {
-            const input = document.getElementById('newFolderInput');
-            const name = input.value.trim();
-            if (!name) {
-                alert('폴더명을 입력해주세요.');
-                return;
-            }
-            if (checkDuplicateName(name)) {
-                alert('같은 이름의 폴더가 있습니다.');
-                return;
-            }
-            const newCategory = {
-                id: generateId(),
-                name: name,
-                level: 1,
-                parentId: null,
-                children: [],
-                items: []
-            };
-            categories = [newCategory, ...categories];
-            saveData();
-            input.value = '';
-            renderFolderSelectionList();
-        }
+        
 
         function closeFolderSelectionModal() {
             const modal = document.getElementById('folderSelectionModal');
