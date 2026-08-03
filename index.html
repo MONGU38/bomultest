@@ -1337,7 +1337,7 @@
         <span style="font-size: 14px;">+</span>
     </button>
 ` : ''}
-                            <button class="btn-icon" onclick="promptEditCategory('${category.id}','${category.name}')" title="이름 수정">
+                            <button class="btn-icon" onclick="editingId='${category.id}'; renderApp()" title="이름 수정">
                                 <span style="font-size: 14px;">✏️</span>
                             </button>
                             <button class="btn-icon" onclick="moveCategoryUp('${category.id}')" title="위로 이동">
@@ -2170,24 +2170,11 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         window.swapCategories = swapCategories;
         window.toggleDataManagement = toggleDataManagement;
         window.addFolderFromModal = addFolderFromModal;
-        window.startEditing = function(id) { editingId = id; renderApp(); };
-        window.promptEditCategory = function(id, currentName) {
-            var newName = prompt('새 폴더명 입력 (5자 이내):', currentName);
-            if (newName && newName.trim() && newName.trim() !== currentName) {
-                updateCategoryName(id, newName.trim().slice(0, 5));
-            }
-        };
 
         // Start the app when DOM is loaded
         window.onload = function() {
             initializeApp();
         };
-
-        window.addEventListener('popstate', function() {
-            history.pushState(null, '', location.href);
-        });
-
-        history.pushState(null, '', location.href);
     </script>
     <input type="file" id="importFile" accept=".json" style="display: none;">
 </body>
