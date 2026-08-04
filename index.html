@@ -149,12 +149,6 @@
             background: #4b5563;
         }
 
-        .btn-small {
-            padding: 0.25rem;
-            border-radius: 0.25rem;
-            font-size: 0.75rem;
-        }
-
         .btn-icon {
             padding: 0.25rem;
             border-radius: 0.25rem;
@@ -224,6 +218,20 @@
             border-radius: 9999px;
         }
 
+        /* Shared Notice Banner */
+        .shared-notice {
+            background: #eff6ff;
+            border: 2px dashed #3b82f6;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            color: #1e40af;
+        }
+        .shared-notice-title {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
         /* Forms */
         .form-container {
             margin-bottom: 1.5rem;
@@ -253,6 +261,7 @@
         }
 
         .form-input,
+        .form-select,
         .form-textarea {
             width: 100%;
             padding: 0.5rem 0.75rem;
@@ -260,9 +269,11 @@
             border-radius: 0.5rem;
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
+            background: white;
         }
 
         .form-input:focus,
+        .form-select:focus,
         .form-textarea:focus {
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -314,6 +325,7 @@
             align-items: center;
             gap: 0.25rem;
             margin-top: 0.25rem;
+            word-break: break-all;
         }
 
         .item-url:hover {
@@ -628,6 +640,12 @@
                 <p class="subtitle">중요한 자료를 폴더별로 정리하세요 🌸</p>
             </div>
 
+            <!-- 공유 감지 안내 배너 -->
+            <div id="sharedNotice" class="shared-notice hidden">
+                <div class="shared-notice-title">📥 공유받은 데이터가 감지되었습니다!</div>
+                <p id="sharedNoticeText" style="font-size: 0.875rem;"></p>
+            </div>
+
             <!-- Controls -->
             <div class="controls">
                 <!-- Search -->
@@ -692,6 +710,15 @@
             <!-- Item Form -->
             <div id="itemForm" class="form-container hidden">
                 <h3 id="itemFormTitle" class="form-title">새 자료 추가</h3>
+                
+                <!-- 카테고리 선택 Dropdown (공유용/일반용 통합) -->
+                <div class="form-group" id="categorySelectGroup">
+                    <label class="form-label">저장할 폴더(카테고리)</label>
+                    <select id="categorySelect" class="form-select">
+                        <option value="">-- 폴더를 선택하세요 --</option>
+                    </select>
+                </div>
+
                 <div id="currentLocation" class="current-location hidden">
                     <div class="current-location-text">
                         📁 현재 위치: <span id="currentLocationPath"></span>
@@ -704,7 +731,7 @@
                         id="itemTitleInput" 
                         class="form-input" 
                         placeholder="자료 제목을 입력하세요"
-                        maxlength="20"
+                        maxlength="50"
                     >
                 </div>
                 <div class="form-group">
@@ -727,7 +754,7 @@
                 </div>
                 <div class="form-actions">
                     <button id="saveItemBtn" class="btn btn-success">
-                        <span style="font-size: 18px;">💾</span>
+                        <span style="font-size: 18px;">💾 저장하기</span>
                     </button>
                     <button id="cancelItemBtn" class="btn btn-gray">
                         <span style="font-size: 18px;">❌</span>
@@ -792,8 +819,7 @@
                 <ul class="help-list">
                     <li class="help-item">• 메인 카테고리(1차)부터 시작하여 4차까지 하위 카테고리를 만들 수 있습니다</li>
                     <li class="help-item">• 각 레벨은 다른 색상으로 구분됩니다</li>
-                    <li class="help-item">• 자료 제목에 [작은따옴표] 들어가지 않게 해주세요</li>
-                    <li class="help-item">• 폴더를 펼치면 저장된 자료들을 제목으로 확인할 수 있습니다</li>
+                    <li class="help-item">• 외부 앱(유튜브, 웹 브라우저)에서 '공유하기'로 보물창고를 선택하면 원하는 폴더에 바로 저장할 수 있습니다</li>
                     <li class="help-item">• 문의사항: fbi1588@hanmail.net </li>
                 </ul>
             </div>
@@ -859,6 +885,8 @@
         const warningText = document.getElementById('warningText');
         const itemForm = document.getElementById('itemForm');
         const itemFormTitle = document.getElementById('itemFormTitle');
+        const categorySelectGroup = document.getElementById('categorySelectGroup');
+        const categorySelect = document.getElementById('categorySelect');
         const currentLocation = document.getElementById('currentLocation');
         const currentLocationPath = document.getElementById('currentLocationPath');
         const itemTitleInput = document.getElementById('itemTitleInput');
@@ -876,16 +904,98 @@
         const deleteItemName = document.getElementById('deleteItemName');
         const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
         const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const sharedNotice = document.getElementById('sharedNotice');
+        const sharedNoticeText = document.getElementById('sharedNoticeText');
 
         // Initial Load
         window.addEventListener('DOMContentLoaded', () => {
+            categories = loadData();
+
             setTimeout(() => {
                 document.getElementById('splash-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
+                
+                // 앱 오픈 시 공유받은 데이터 수신 여부 체크
+                handleIncomingShare();
             }, 3000);
 
-            categories = loadData();
             render();
+        });
+
+        // 공유 데이터 파싱 및 처리
+        function handleIncomingShare() {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Web Share Target API 파라미터 체크 (title, text, url)
+            let sharedTitle = params.get('title') || '';
+            let sharedText = params.get('text') || '';
+            let sharedUrl = params.get('url') || '';
+
+            // text 안에 URL이 함께 인코딩되어 넘어오는 경우 파싱 (예: 유튜브 공유)
+            if (!sharedUrl && sharedText) {
+                const urlMatch = sharedText.match(/(https?:\/\/[^\s]+)/);
+                if (urlMatch) {
+                    sharedUrl = urlMatch[0];
+                    sharedText = sharedText.replace(sharedUrl, '').trim();
+                }
+            }
+
+            const finalTitle = sharedTitle || sharedText || '공유된 정보';
+
+            if (sharedUrl || sharedTitle || sharedText) {
+                // 공유 안내 배너
+                sharedNoticeText.textContent = `링크: ${sharedUrl || finalTitle}`;
+                sharedNotice.classList.remove('hidden');
+
+                // 자료 추가 폼 즉시 오픈
+                openItemFormForShare(finalTitle, sharedUrl);
+            }
+        }
+
+        // 공유 모드용 자료 추가 폼 열기
+        function openItemFormForShare(title, url) {
+            hideForms();
+            itemFormTitle.textContent = '📥 공유 자료 저장하기';
+            
+            // 카테고리 셀렉트 옵션 빌드
+            populateCategorySelect();
+            categorySelectGroup.classList.remove('hidden');
+            currentLocation.classList.add('hidden');
+
+            itemTitleInput.value = title;
+            itemUrlInput.value = url;
+            itemMemoInput.value = '';
+
+            addingItemTo = null; // 사용자가 드롭다운으로 선택하도록 함
+            editingItem = null;
+
+            itemForm.classList.remove('hidden');
+            itemTitleInput.focus();
+        }
+
+        // 카테고리 전체를 드롭다운 옵션으로 생성
+        function populateCategorySelect() {
+            categorySelect.innerHTML = '<option value="">-- 저장할 폴더를 선택하세요 --</option>';
+            
+            function addOptions(list, depth = 0) {
+                list.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.id;
+                    const prefix = '└ '.repeat(depth);
+                    option.textContent = `${prefix}${cat.name}`;
+                    categorySelect.appendChild(option);
+
+                    if (cat.children && cat.children.length > 0) {
+                        addOptions(cat.children, depth + 1);
+                    }
+                });
+            }
+
+            addOptions(categories);
+        }
+
+        categorySelect.addEventListener('change', (e) => {
+            addingItemTo = e.target.value;
         });
 
         // Utility Functions
@@ -966,6 +1076,11 @@
             searchTerm = '';
             searchInput.value = '';
             clearSearchBtn.classList.add('hidden');
+            sharedNotice.classList.add('hidden');
+            // URL 파라미터 제거 (재경로 처리)
+            if (window.location.search) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
             hideForms();
             render();
         }
@@ -1055,10 +1170,21 @@
             const url = itemUrlInput.value.trim();
             const memo = itemMemoInput.value.trim();
 
-            if (!title) return;
+            if (!title) {
+                alert('제목을 입력해주세요!');
+                return;
+            }
+
+            if (!addingItemTo) {
+                alert('저장할 폴더(카테고리)를 선택해주세요!');
+                return;
+            }
 
             const targetCategory = findCategoryById(addingItemTo);
-            if (!targetCategory) return;
+            if (!targetCategory) {
+                alert('선택한 폴더를 찾을 수 없습니다.');
+                return;
+            }
 
             if (!targetCategory.items) targetCategory.items = [];
 
@@ -1080,14 +1206,23 @@
 
             expandedCategories.add(targetCategory.id);
             saveData();
+            
+            // 공유 파라미터 정리
+            if (window.location.search) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            sharedNotice.classList.add('hidden');
+
             hideForms();
             render();
+            alert('저장되었습니다!');
         }
 
         function hideForms() {
             categoryForm.classList.add('hidden');
             itemForm.classList.add('hidden');
             duplicateWarning.classList.add('hidden');
+            categorySelectGroup.classList.add('hidden');
             isCreating = false;
             editingId = null;
             selectedParent = null;
@@ -1220,6 +1355,7 @@
                 const path = findCategoryPath(category.id);
                 currentLocationPath.textContent = path ? path.join(' > ') : category.name;
                 currentLocation.classList.remove('hidden');
+                categorySelectGroup.classList.add('hidden'); // 클릭으로 들어올 때는 셀렉트 숨김
                 itemTitleInput.value = '';
                 itemUrlInput.value = '';
                 itemMemoInput.value = '';
@@ -1280,6 +1416,7 @@
                             const path = findCategoryPath(category.id);
                             currentLocationPath.textContent = path ? path.join(' > ') : category.name;
                             currentLocation.classList.remove('hidden');
+                            categorySelectGroup.classList.add('hidden');
                             itemTitleInput.value = item.title;
                             itemUrlInput.value = item.url || '';
                             itemMemoInput.value = item.memo || '';
