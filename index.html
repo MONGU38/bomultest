@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌸 보물창고</title>
+    <title>📦 보물창고</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#f97316">
     <link rel="icon" type="image/png" sizes="192x192" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
@@ -631,7 +631,7 @@
     <!-- 초기 안내 화면 -->
     <div id="splash-screen" class="splash-screen">
         <div class="splash-content">
-            <h1>🌸 보물창고</h1>
+            <h1>📦 보물창고</h1>
             <div class="splash-message">
                 <p>"어디서 봤는데... 어디더라?"</p>
                 <p>이런 경험 있으신가요?</p>
@@ -652,8 +652,8 @@
         <div class="container">
             <!-- Header -->
             <div class="header">
-                <h1 class="title">🌸 보물창고</h1>
-                <p class="subtitle">중요한 자료를 폴더별로 정리하세요 🌸</p>
+                <h1 class="title">📦 보물창고</h1>
+                <p class="subtitle">중요한 자료를 카테고리별로 정리하세요</p>
             </div>
 
             <!-- Controls -->
@@ -828,20 +828,21 @@
         </div>
 
             <!-- Backup Section -->
-            <div class="help" style="margin-top: 1rem; text-align: center;">
-                <button onclick="toggleDataManagement()" class="btn btn-gray" style="margin-bottom: 0.5rem;">💾 데이터 관리</button>
-                <div id="data-management" style="display: none; margin-top: 10px;">
-                    <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
-                        <button id="exportBtn" class="btn btn-success">
-                            <span>💾</span>
-                            <span>백업</span>
-                        </button>
-                        <button id="importBtn" class="btn btn-secondary">
-                            <span>📁</span>
-                            <span>복원</span>
-                        </button>
-                    </div>
+            <div class="help" style="margin-top: 1rem; display: none;">
+                <h3 class="help-title">💾 데이터 백업</h3>
+                <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                    <button id="exportBtn" class="btn btn-success">
+                        <span>💾</span>
+                        <span>백업</span>
+                    </button>
+                    <button id="importBtn" class="btn btn-secondary">
+                        <span>📁</span>
+                        <span>복원</span>
+                    </button>
                 </div>
+                <p style="font-size: 0.75rem; color: #6b7280; text-align: center; margin-top: 0.5rem;">
+                    정기적으로 백업하여 소중한 데이터를 안전하게 보관하세요. 폰에서만 적용됩니다.
+                </p>
             </div>
         </div>
     </div>
@@ -878,7 +879,21 @@
     </div>
 
     <script type="module">
-        
+        import { initializeApp as fbInitializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBxR81or12CziM9UV-SNupfNRkPdmBoimM",
+            authDomain: "bofirebasepr.firebaseapp.com",
+            projectId: "bofirebasepr",
+            storageBucket: "bofirebasepr.firebasestorage.app",
+            messagingSenderId: "193631083349",
+            appId: "1:193631083349:web:0bda9f8ce6682c8fafeddc"
+        };
+
+        const app = fbInitializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const USER_ID = "user1";
 
         // Global State
         let categories = [];
@@ -941,19 +956,22 @@
         }
 
         // Data Management
-        function loadData() {
+        async function loadData() {
             try {
-                const data = localStorage.getItem('bomulchanggo');
-                return data ? JSON.parse(data) : [];
+                const snap = await getDoc(doc(db, 'users', USER_ID));
+                if (snap.exists()) {
+                    return JSON.parse(snap.data().categories);
+                }
+                return [];
             } catch (error) {
                 console.error('데이터 불러오기 실패:', error);
                 return [];
             }
         }
 
-        function saveData() {
+        async function saveData() {
             try {
-                localStorage.setItem('bomulchanggo', JSON.stringify(categories));
+                await setDoc(doc(db, 'users', USER_ID), { categories: JSON.stringify(categories) });
             } catch (error) {
                 console.error('데이터 저장 실패:', error);
             }
@@ -1856,11 +1874,6 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                 }
             }
         }
-        function toggleDataManagement() {
-            const menu = document.getElementById('data-management');
-            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-        }
-
         // 백업 함수
         function exportData() {
             const data = {
@@ -1922,11 +1935,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                         <h3 class="modal-title">📁 저장할 폴더 선택</h3>
                         <div class="modal-content">
                             <p>🎬 공유받은 영상을 어느 폴더에 저장하시겠습니까?</p>
-                            <div style="margin-bottom: 0.75rem;">
-                                <input type="text" id="newFolderInput" placeholder="새 폴더명 입력 (5자 이내)" maxlength="5" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none;">
-                                <button onclick="addFolderFromModal()" style="margin-top: 0.5rem; width: 100%; padding: 0.5rem; background: #ea580c; color: white; border: none; border-radius: 0.5rem; font-size: 0.875rem; cursor: pointer;">+ 새 폴더 만들기</button>
-                            </div>
-                            <div id="folderSelectionList" style="max-height: 250px; overflow-y: auto; margin: 1rem 0;">
+                            <div id="folderSelectionList" style="max-height: 300px; overflow-y: auto; margin: 1rem 0;">
                                 <!-- 폴더 목록이 여기에 들어감 -->
                             </div>
                         </div>
@@ -2079,31 +2088,6 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             delete window.sharedData;
         }
 
-        function addFolderFromModal() {
-            const input = document.getElementById('newFolderInput');
-            const name = input.value.trim();
-            if (!name) {
-                alert('폴더명을 입력해주세요.');
-                return;
-            }
-            if (checkDuplicateName(name)) {
-                alert('같은 이름의 폴더가 있습니다.');
-                return;
-            }
-            const newCategory = {
-                id: generateId(),
-                name: name,
-                level: 1,
-                parentId: null,
-                children: [],
-                items: []
-            };
-            categories = [...categories, newCategory];
-            saveData();
-            input.value = '';
-            renderFolderSelectionList();
-        }
-
         function closeFolderSelectionModal() {
             const modal = document.getElementById('folderSelectionModal');
             if (modal) {
@@ -2114,41 +2098,53 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         }
         // Initialize App
         async function initializeApp() {
-            categories = loadData();
+            categories = await loadData();
+            initializeEventListeners();
+            renderApp();
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const sharedTitle = urlParams.get('title');
-            const sharedText = urlParams.get('text');
-            const sharedUrl = urlParams.get('url');
-            const isShared = sharedTitle || sharedText || sharedUrl;
-
-            if (isShared && categories.length > 0) {
-                window.sharedData = {
-                    title: sharedTitle,
-                    url: sharedUrl,
-                    text: sharedText
-                };
-                document.getElementById('splash-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-                document.getElementById('data-management').style.display = 'none';
-                initializeEventListeners();
-                renderApp();
-                showFolderSelectionModal();
-            } else if (isShared && categories.length === 0) {
-                alert('📁 먼저 카테고리를 만든 후 공유 기능을 사용해주세요!');
-            } else {
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                    document.getElementById('main-app').style.display = 'block';
-                    document.getElementById('data-management').style.display = 'none';
-                    initializeEventListeners();
-                    renderApp();
-                }, 3000);
-            }
-
+            // Service Worker registration
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/bomultest/sw.js');
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then(registration => {
+                            console.log('Service Worker registered successfully:', registration.scope);
+                        })
+                        .catch(error => {
+                            console.log('Service Worker registration failed:', error);
+                        });
+                });
             }
+
+            // Handle shared data
+            window.addEventListener('load', () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const sharedTitle = urlParams.get('title');
+                const sharedText = urlParams.get('text');
+                const sharedUrl = urlParams.get('url');
+                
+              if (sharedTitle || sharedText || sharedUrl) {
+                    console.log('공유된 데이터:', {
+                        title: sharedTitle,
+                        text: sharedText,
+                        url: sharedUrl
+                    });
+                    
+                    // 공유된 데이터로 폴더 선택 모달 표시
+                    if (categories.length > 0) {
+                        // 공유된 데이터를 전역 변수에 저장
+                        window.sharedData = {
+                            title: sharedTitle,
+                            url: sharedUrl,
+                            text: sharedText
+                        };
+                        
+                        // 폴더 선택 모달 표시
+                        showFolderSelectionModal();
+                    } else {
+                        alert('📁 먼저 카테고리를 만든 후 공유 기능을 사용해주세요!');
+                    }
+                }
+            });
         }
 
 
@@ -2168,13 +2164,17 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         window.moveCategoryDown = moveCategoryDown;
         window.updateCategoryName = updateCategoryName;
         window.swapCategories = swapCategories;
-        window.toggleDataManagement = toggleDataManagement;
-        window.addFolderFromModal = addFolderFromModal;
 
         // Start the app when DOM is loaded
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', () => {
+            // 3초 후 초기 화면 숨기고 메인 앱 표시
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+            }, 3000);
+            
             initializeApp();
-        };
+        });
     </script>
     <input type="file" id="importFile" accept=".json" style="display: none;">
 </body>
