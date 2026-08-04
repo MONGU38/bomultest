@@ -828,21 +828,20 @@
         </div>
 
             <!-- Backup Section -->
-            <div class="help" style="margin-top: 1rem; display: none;">
-                <h3 class="help-title">💾 데이터 백업</h3>
-                <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                    <button id="exportBtn" class="btn btn-success">
-                        <span>💾</span>
-                        <span>백업</span>
-                    </button>
-                    <button id="importBtn" class="btn btn-secondary">
-                        <span>📁</span>
-                        <span>복원</span>
-                    </button>
+            <div class="help" style="margin-top: 1rem; text-align: center;">
+                <button onclick="toggleDataManagement()" class="btn btn-gray" style="margin-bottom: 0.5rem;">💾 데이터 관리</button>
+                <div id="data-management" style="display: none; margin-top: 10px;">
+                    <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                        <button id="exportBtn" class="btn btn-success">
+                            <span>💾</span>
+                            <span>백업</span>
+                        </button>
+                        <button id="importBtn" class="btn btn-secondary">
+                            <span>📁</span>
+                            <span>복원</span>
+                        </button>
+                    </div>
                 </div>
-                <p style="font-size: 0.75rem; color: #6b7280; text-align: center; margin-top: 0.5rem;">
-                    정기적으로 백업하여 소중한 데이터를 안전하게 보관하세요. 폰에서만 적용됩니다.
-                </p>
             </div>
         </div>
     </div>
@@ -881,6 +880,7 @@
     <script type="module">
         import { initializeApp as fbInitializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBxR81or12CziM9UV-SNupfNRkPdmBoimM",
@@ -893,7 +893,8 @@
 
         const app = fbInitializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const USER_ID = "user1";
+        const auth = getAuth(app);
+        let USER_ID = "user1";
 
         // Global State
         let categories = [];
@@ -1874,6 +1875,11 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                 }
             }
         }
+        function toggleDataManagement() {
+            const menu = document.getElementById('data-management');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+
         // 백업 함수
         function exportData() {
             const data = {
@@ -2098,6 +2104,14 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         }
         // Initialize App
         async function initializeApp() {
+            const savedUID = localStorage.getItem('bomul_uid');
+            if (savedUID) {
+                USER_ID = savedUID;
+            } else {
+                const userCredential = await signInAnonymously(auth);
+                USER_ID = userCredential.user.uid;
+                localStorage.setItem('bomul_uid', USER_ID);
+            }
             categories = await loadData();
             initializeEventListeners();
             renderApp();
@@ -2105,7 +2119,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             // Service Worker registration
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js')
+                    navigator.serviceWorker.register('/bomultest/sw.js')
                         .then(registration => {
                             console.log('Service Worker registered successfully:', registration.scope);
                         })
@@ -2116,35 +2130,23 @@ document.getElementById('resetBtn').addEventListener('click', () => {
             }
 
             // Handle shared data
-            window.addEventListener('load', () => {
-                const urlParams = new URLSearchParams(window.location.search);
-                const sharedTitle = urlParams.get('title');
-                const sharedText = urlParams.get('text');
-                const sharedUrl = urlParams.get('url');
-                
-              if (sharedTitle || sharedText || sharedUrl) {
-                    console.log('공유된 데이터:', {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sharedTitle = urlParams.get('title');
+            const sharedText = urlParams.get('text');
+            const sharedUrl = urlParams.get('url');
+            
+            if (sharedTitle || sharedText || sharedUrl) {
+                if (categories.length > 0) {
+                    window.sharedData = {
                         title: sharedTitle,
-                        text: sharedText,
-                        url: sharedUrl
-                    });
-                    
-                    // 공유된 데이터로 폴더 선택 모달 표시
-                    if (categories.length > 0) {
-                        // 공유된 데이터를 전역 변수에 저장
-                        window.sharedData = {
-                            title: sharedTitle,
-                            url: sharedUrl,
-                            text: sharedText
-                        };
-                        
-                        // 폴더 선택 모달 표시
-                        showFolderSelectionModal();
-                    } else {
-                        alert('📁 먼저 카테고리를 만든 후 공유 기능을 사용해주세요!');
-                    }
+                        url: sharedUrl,
+                        text: sharedText
+                    };
+                    showFolderSelectionModal();
+                } else {
+                    alert('📁 먼저 카테고리를 만든 후 공유 기능을 사용해주세요!');
                 }
-            });
+            }
         }
 
 
@@ -2164,6 +2166,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
         window.moveCategoryDown = moveCategoryDown;
         window.updateCategoryName = updateCategoryName;
         window.swapCategories = swapCategories;
+        window.toggleDataManagement = toggleDataManagement;
 
         // Start the app when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
