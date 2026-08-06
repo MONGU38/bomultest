@@ -27,7 +27,7 @@
     }
 ],
 "share_target": {
-    "action": "/bomultest/",
+    "action": "/bomultest/index.html",
     "method": "GET",
     "params": {
       "title": "title",
