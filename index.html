@@ -149,6 +149,12 @@
             background: #4b5563;
         }
 
+        .btn-small {
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+        }
+
         .btn-icon {
             padding: 0.25rem;
             border-radius: 0.25rem;
@@ -193,6 +199,14 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
+        .category-header.dragging {
+            opacity: 0.5;
+        }
+
+        .category-header.drag-over {
+            border-top: 3px solid #3b82f6;
+        }
+
         .category-left {
             display: flex;
             align-items: center;
@@ -216,20 +230,6 @@
             background: rgba(255, 255, 255, 0.6);
             padding: 0.25rem 0.5rem;
             border-radius: 9999px;
-        }
-
-        /* Shared Notice Banner */
-        .shared-notice {
-            background: #eff6ff;
-            border: 2px dashed #3b82f6;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            color: #1e40af;
-        }
-        .shared-notice-title {
-            font-weight: bold;
-            margin-bottom: 0.25rem;
         }
 
         /* Forms */
@@ -261,7 +261,6 @@
         }
 
         .form-input,
-        .form-select,
         .form-textarea {
             width: 100%;
             padding: 0.5rem 0.75rem;
@@ -269,11 +268,9 @@
             border-radius: 0.5rem;
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
-            background: white;
         }
 
         .form-input:focus,
-        .form-select:focus,
         .form-textarea:focus {
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -294,7 +291,22 @@
         /* Items */
         .items-container {
             margin-top: 0.5rem;
-            padding-left: 1rem;
+        }
+
+        .items-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+        }
+
+        .items-toggle:hover {
+            color: #1f2937;
         }
 
         .item {
@@ -325,7 +337,6 @@
             align-items: center;
             gap: 0.25rem;
             margin-top: 0.25rem;
-            word-break: break-all;
         }
 
         .item-url:hover {
@@ -336,7 +347,6 @@
             font-size: 0.75rem;
             color: #6b7280;
             margin-top: 0.25rem;
-            white-space: pre-wrap;
         }
 
         .item-actions {
@@ -414,7 +424,7 @@
 
         .legend-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 0.5rem;
             font-size: 0.875rem;
         }
@@ -435,6 +445,12 @@
         .legend-color-2 { background: #dcfce7; border: 1px solid #86efac; }
         .legend-color-3 { background: #f3e8ff; border: 1px solid #c084fc; }
         .legend-color-4 { background: #fff7ed; border: 1px solid #fdba74; }
+       
+        .legend-note {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
 
         /* Search Results */
         .search-results {
@@ -507,7 +523,7 @@
             }
             
             .legend-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(4, 1fr);
             }
             
             .button-group {
@@ -640,12 +656,6 @@
                 <p class="subtitle">중요한 자료를 폴더별로 정리하세요 🌸</p>
             </div>
 
-            <!-- 공유 감지 안내 배너 -->
-            <div id="sharedNotice" class="shared-notice hidden">
-                <div class="shared-notice-title">📥 공유받은 데이터가 감지되었습니다!</div>
-                <p id="sharedNoticeText" style="font-size: 0.875rem;"></p>
-            </div>
-
             <!-- Controls -->
             <div class="controls">
                 <!-- Search -->
@@ -663,20 +673,20 @@
                 </div>
 
                 <!-- Buttons -->
-                <div class="button-group">
-                    <button id="addCategoryBtn" class="btn btn-primary">
-                        <span style="font-size: 20px;">+</span>
-                        <span>새 카테고리 추가</span>
-                    </button>
-                    <button id="homeBtn" class="btn btn-secondary hidden">
-                        <span>🏠</span>
-                        <span>초기 화면</span>
-                    </button>
-                    <button id="resetBtn" class="btn btn-success">
-                        <span>🔄</span>
-                        <span>새로고침</span>
-                    </button>
-                </div>
+<div class="button-group">
+    <button id="addCategoryBtn" class="btn btn-primary">
+        <span style="font-size: 20px;">+</span>
+        <span>새 카테고리 추가</span>
+    </button>
+    <button id="homeBtn" class="btn btn-secondary hidden">
+        <span>🏠</span>
+        <span>초기 화면</span>
+    </button>
+    <button id="resetBtn" class="btn btn-success">
+    <span>🔄</span>
+    <span>초기화면</span>
+</button>
+</div>
             </div>
 
             <!-- Category Form -->
@@ -710,15 +720,6 @@
             <!-- Item Form -->
             <div id="itemForm" class="form-container hidden">
                 <h3 id="itemFormTitle" class="form-title">새 자료 추가</h3>
-                
-                <!-- 카테고리 선택 Dropdown (공유용/일반용 통합) -->
-                <div class="form-group" id="categorySelectGroup">
-                    <label class="form-label">저장할 폴더(카테고리)</label>
-                    <select id="categorySelect" class="form-select">
-                        <option value="">-- 폴더를 선택하세요 --</option>
-                    </select>
-                </div>
-
                 <div id="currentLocation" class="current-location hidden">
                     <div class="current-location-text">
                         📁 현재 위치: <span id="currentLocationPath"></span>
@@ -731,7 +732,7 @@
                         id="itemTitleInput" 
                         class="form-input" 
                         placeholder="자료 제목을 입력하세요"
-                        maxlength="50"
+                        maxlength="20"
                     >
                 </div>
                 <div class="form-group">
@@ -754,7 +755,7 @@
                 </div>
                 <div class="form-actions">
                     <button id="saveItemBtn" class="btn btn-success">
-                        <span style="font-size: 18px;">💾 저장하기</span>
+                        <span style="font-size: 18px;">💾</span>
                     </button>
                     <button id="cancelItemBtn" class="btn btn-gray">
                         <span style="font-size: 18px;">❌</span>
@@ -782,6 +783,7 @@
                         <div class="legend-color legend-color-4"></div>
                         <span>4차</span>
                     </div>
+                    
                 </div>
             </div>
 
@@ -819,29 +821,47 @@
                 <ul class="help-list">
                     <li class="help-item">• 메인 카테고리(1차)부터 시작하여 4차까지 하위 카테고리를 만들 수 있습니다</li>
                     <li class="help-item">• 각 레벨은 다른 색상으로 구분됩니다</li>
-                    <li class="help-item">• 외부 앱(유튜브, 웹 브라우저)에서 '공유하기'로 보물창고를 선택하면 원하는 폴더에 바로 저장할 수 있습니다</li>
+                    <li class="help-item">• 자료 제목에 [작은따옴표] 들어가지 않게 해주세요</li>
+                    <li class="help-item">• 폴더를 펼치면 저장된 자료들을 제목으로 확인할 수 있습니다</li>
                     <li class="help-item">• 문의사항: fbi1588@hanmail.net </li>
                 </ul>
-            </div>
+        </div>
 
             <!-- Backup Section -->
             <div class="help" style="margin-top: 1rem; text-align: center;">
-                <button onclick="toggleDataManagement()" class="btn btn-gray" style="margin-bottom: 0.5rem; margin: 0 auto;">💾 데이터 관리</button>
+                <button onclick="toggleDataManagement()" class="btn btn-gray" style="margin-bottom: 0.5rem;">💾 데이터 관리</button>
                 <div id="data-management" style="display: none; margin-top: 10px;">
                     <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
                         <button id="exportBtn" class="btn btn-success">
-                            <span>💾 백업</span>
+                            <span>💾</span>
+                            <span>백업</span>
                         </button>
                         <button id="importBtn" class="btn btn-secondary">
-                            <span>📁 복원</span>
+                            <span>📁</span>
+                            <span>복원</span>
                         </button>
-                        <input type="file" id="importFileInput" style="display: none;" accept=".json">
                     </div>
                 </div>
             </div>
         </div>
     </div>
+<!-- Move/Copy Item Modal -->
+    <div id="moveModal" class="modal-overlay hidden">
+        <div class="modal">
+            <h3 class="modal-title" id="moveModalTitle">자료 이동</h3>
+            <div class="modal-content">
+                <p>어느 폴더로 이동하시겠습니까?</p>
+                <div id="folderList" style="max-height: 300px; overflow-y: auto; margin: 1rem 0;">
+                    <!-- 폴더 목록이 여기에 들어감 -->
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="cancelMoveBtn" class="btn btn-gray">취소</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Delete Confirmation Modal -->
     <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal-overlay hidden">
         <div class="modal">
@@ -858,9 +878,12 @@
     </div>
 
     <script>
+        
+
         // Global State
         let categories = [];
         let expandedCategories = new Set();
+        let expandedItems = new Set();
         let isCreating = false;
         let editingId = null;
         let selectedParent = null;
@@ -869,13 +892,13 @@
         let searchTerm = '';
         let filteredCategories = [];
         let deleteConfirmData = null;
+        let recentFolders = JSON.parse(localStorage.getItem('recentFolders') || '[]');
 
         // DOM Elements
         const searchInput = document.getElementById('searchInput');
         const clearSearchBtn = document.getElementById('clearSearchBtn');
         const addCategoryBtn = document.getElementById('addCategoryBtn');
         const homeBtn = document.getElementById('homeBtn');
-        const resetBtn = document.getElementById('resetBtn');
         const categoryForm = document.getElementById('categoryForm');
         const categoryFormTitle = document.getElementById('categoryFormTitle');
         const categoryNameInput = document.getElementById('categoryNameInput');
@@ -885,8 +908,6 @@
         const warningText = document.getElementById('warningText');
         const itemForm = document.getElementById('itemForm');
         const itemFormTitle = document.getElementById('itemFormTitle');
-        const categorySelectGroup = document.getElementById('categorySelectGroup');
-        const categorySelect = document.getElementById('categorySelect');
         const currentLocation = document.getElementById('currentLocation');
         const currentLocationPath = document.getElementById('currentLocationPath');
         const itemTitleInput = document.getElementById('itemTitleInput');
@@ -904,99 +925,6 @@
         const deleteItemName = document.getElementById('deleteItemName');
         const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
         const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-        const sharedNotice = document.getElementById('sharedNotice');
-        const sharedNoticeText = document.getElementById('sharedNoticeText');
-
-        // Initial Load
-        window.addEventListener('DOMContentLoaded', () => {
-            categories = loadData();
-
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-                
-                // 앱 오픈 시 공유받은 데이터 수신 여부 체크
-                handleIncomingShare();
-            }, 3000);
-
-            render();
-        });
-
-        // 공유 데이터 파싱 및 처리
-        function handleIncomingShare() {
-            const params = new URLSearchParams(window.location.search);
-            
-            // Web Share Target API 파라미터 체크 (title, text, url)
-            let sharedTitle = params.get('title') || '';
-            let sharedText = params.get('text') || '';
-            let sharedUrl = params.get('url') || '';
-
-            // text 안에 URL이 함께 인코딩되어 넘어오는 경우 파싱 (예: 유튜브 공유)
-            if (!sharedUrl && sharedText) {
-                const urlMatch = sharedText.match(/(https?:\/\/[^\s]+)/);
-                if (urlMatch) {
-                    sharedUrl = urlMatch[0];
-                    sharedText = sharedText.replace(sharedUrl, '').trim();
-                }
-            }
-
-            const finalTitle = sharedTitle || sharedText || '공유된 정보';
-
-            if (sharedUrl || sharedTitle || sharedText) {
-                // 공유 안내 배너
-                sharedNoticeText.textContent = `링크: ${sharedUrl || finalTitle}`;
-                sharedNotice.classList.remove('hidden');
-
-                // 자료 추가 폼 즉시 오픈
-                openItemFormForShare(finalTitle, sharedUrl);
-            }
-        }
-
-        // 공유 모드용 자료 추가 폼 열기
-        function openItemFormForShare(title, url) {
-            hideForms();
-            itemFormTitle.textContent = '📥 공유 자료 저장하기';
-            
-            // 카테고리 셀렉트 옵션 빌드
-            populateCategorySelect();
-            categorySelectGroup.classList.remove('hidden');
-            currentLocation.classList.add('hidden');
-
-            itemTitleInput.value = title;
-            itemUrlInput.value = url;
-            itemMemoInput.value = '';
-
-            addingItemTo = null; // 사용자가 드롭다운으로 선택하도록 함
-            editingItem = null;
-
-            itemForm.classList.remove('hidden');
-            itemTitleInput.focus();
-        }
-
-        // 카테고리 전체를 드롭다운 옵션으로 생성
-        function populateCategorySelect() {
-            categorySelect.innerHTML = '<option value="">-- 저장할 폴더를 선택하세요 --</option>';
-            
-            function addOptions(list, depth = 0) {
-                list.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat.id;
-                    const prefix = '└ '.repeat(depth);
-                    option.textContent = `${prefix}${cat.name}`;
-                    categorySelect.appendChild(option);
-
-                    if (cat.children && cat.children.length > 0) {
-                        addOptions(cat.children, depth + 1);
-                    }
-                });
-            }
-
-            addOptions(categories);
-        }
-
-        categorySelect.addEventListener('change', (e) => {
-            addingItemTo = e.target.value;
-        });
 
         // Utility Functions
         function generateId() {
@@ -1010,17 +938,6 @@
                 9: 'category-level-9', 10: 'category-level-10'
             };
             return colorMap[((level - 1) % 10) + 1];
-        }
-
-        function checkCategoryNameLength(input) {
-            if (input.value.length > 5) {
-                input.value = input.value.slice(0, 5);
-            }
-        }
-
-        function toggleDataManagement() {
-            const dm = document.getElementById('data-management');
-            dm.style.display = dm.style.display === 'none' ? 'block' : 'none';
         }
 
         // Data Management
@@ -1043,13 +960,15 @@
         }
 
         function checkDuplicateName(newName, parentCategory = null) {
-            const categoriesToCheck = parentCategory ? (parentCategory.children || []) : categories;
-            return categoriesToCheck.some(cat => cat.name === newName && cat.id !== editingId);
+            const categoriesToCheck = parentCategory ? parentCategory.children : categories;
+            return categoriesToCheck.some(cat => cat.name === newName);
         }
 
         function findCategoryById(id, categoryList = categories) {
             for (let category of categoryList) {
-                if (category.id === id) return category;
+                if (category.id === id) {
+                    return category;
+                }
                 if (category.children && category.children.length > 0) {
                     const found = findCategoryById(id, category.children);
                     if (found) return found;
@@ -1061,7 +980,9 @@
         function findCategoryPath(targetId, categoryList = categories, path = []) {
             for (let category of categoryList) {
                 const currentPath = [...path, category.name];
-                if (category.id === targetId) return currentPath;
+                if (category.id === targetId) {
+                    return currentPath;
+                }
                 if (category.children && category.children.length > 0) {
                     const childPath = findCategoryPath(targetId, category.children, currentPath);
                     if (childPath) return childPath;
@@ -1070,458 +991,1202 @@
             return null;
         }
 
-        // Reset to Home
-        function resetToHome() {
-            expandedCategories.clear();
-            searchTerm = '';
-            searchInput.value = '';
-            clearSearchBtn.classList.add('hidden');
-            sharedNotice.classList.add('hidden');
-            // URL 파라미터 제거 (재경로 처리)
-            if (window.location.search) {
-                window.history.replaceState({}, document.title, window.location.pathname);
+        // Search Functions
+        function searchCategories(term) {
+            if (!term.trim()) {
+                filteredCategories = [];
+                return;
             }
-            hideForms();
-            render();
+
+            const searchInCategory = (category) => {
+                let hasMatch = false;
+                let matchedItems = [];
+                let matchedChildren = [];
+
+                // 카테고리 이름에서 검색
+                const categoryMatch = category.name.toLowerCase().includes(term.toLowerCase());
+
+                // 아이템에서 검색
+                if (category.items) {
+                    matchedItems = category.items.filter(item => 
+                        item.title.toLowerCase().includes(term.toLowerCase()) ||
+                        (item.url && item.url.toLowerCase().includes(term.toLowerCase())) ||
+                        (item.memo && item.memo.toLowerCase().includes(term.toLowerCase()))
+                    );
+                }
+
+                // 하위 카테고리에서 검색
+                if (category.children) {
+                    category.children.forEach(child => {
+                        const childResult = searchInCategory(child);
+                        if (childResult) {
+                            matchedChildren.push(childResult);
+                        }
+                    });
+                }
+
+                hasMatch = categoryMatch || matchedItems.length > 0 || matchedChildren.length > 0;
+
+          if (hasMatch) {
+    return {
+        ...category,
+        items: categoryMatch ? category.items : matchedItems,
+        children: matchedChildren.length > 0 ? matchedChildren : (categoryMatch ? category.children : []),
+        isSearchResult: true
+    };
+}
+
+                return null;
+            };
+
+            const results = categories.map(category => searchInCategory(category)).filter(Boolean);
+            filteredCategories = results;
+
+            // 검색된 결과와 그 부모들을 모두 펼치기
+            const allExpanded = new Set(expandedCategories);
+            const addAllIds = (cats) => {
+                cats.forEach(cat => {
+                    allExpanded.add(cat.id);
+                    if (cat.children && cat.children.length > 0) {
+                        addAllIds(cat.children);
+                    }
+                });
+            };
+            addAllIds(results);
+            expandedCategories = allExpanded;
         }
 
-        // Event Listeners for Buttons
-        addCategoryBtn.addEventListener('click', () => {
-            isCreating = true;
-            editingId = null;
-            selectedParent = null;
-            categoryFormTitle.textContent = '새 카테고리 추가';
-            categoryNameInput.value = '';
-            hideForms();
-            categoryForm.classList.remove('hidden');
-            categoryNameInput.focus();
-        });
-
-        resetBtn.addEventListener('click', resetToHome);
-        homeBtn.addEventListener('click', resetToHome);
-
-        cancelCategoryBtn.addEventListener('click', hideForms);
-        cancelItemBtn.addEventListener('click', hideForms);
-
-        saveCategoryBtn.addEventListener('click', handleSaveCategory);
-        saveItemBtn.addEventListener('click', handleSaveItem);
-
-        // Search Handlers
-        searchInput.addEventListener('input', (e) => {
-            searchTerm = e.target.value;
-            if (searchTerm.trim()) {
-                clearSearchBtn.classList.remove('hidden');
-            } else {
-                clearSearchBtn.classList.add('hidden');
-            }
-            render();
-        });
-
-        clearSearchBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            searchTerm = '';
-            clearSearchBtn.classList.add('hidden');
-            render();
-        });
-
-        // Save Category
-        function handleSaveCategory() {
+        // Category Management
+        function addCategory() {
             const name = categoryNameInput.value.trim();
             if (!name) return;
 
-            const parentCat = selectedParent ? findCategoryById(selectedParent) : null;
-            if (checkDuplicateName(name, parentCat)) {
-                warningText.textContent = '이미 동일한 이름의 카테고리가 존재합니다.';
-                duplicateWarning.classList.remove('hidden');
+             // 글자수 제한 확인
+    if ([...name].length > 10) {
+        showWarning('폴더명은 10자 이내로 입력해주세요');
+        return;
+    }
+            // 중복 이름 확인
+            if (checkDuplicateName(name, selectedParent)) {
+                showWarning('같은 폴더가 있습니다. 다른 폴더명을 입력해주세요');
                 return;
             }
 
-            if (isCreating) {
-                const newCategory = {
-                    id: generateId(),
-                    name: name,
-                    children: [],
-                    items: []
+            hideWarning();
+
+            const newCategory = {
+                id: generateId(),
+                name: name,
+                level: selectedParent ? selectedParent.level + 1 : 1,
+                parentId: selectedParent ? selectedParent.id : null,
+                children: [],
+                items: []
+            };
+
+            if (selectedParent) {
+                const updateCategories = (cats) => {
+                    return cats.map(cat => {
+                        if (cat.id === selectedParent.id) {
+                            return { ...cat, children: [...cat.children, newCategory] };
+                        }
+                        if (cat.children.length > 0) {
+                            return { ...cat, children: updateCategories(cat.children) };
+                        }
+                        return cat;
+                    });
                 };
-
-                if (selectedParent) {
-                    const parent = findCategoryById(selectedParent);
-                    if (parent) {
-                        if (!parent.children) parent.children = [];
-                        parent.children.push(newCategory);
-                        expandedCategories.add(parent.id);
-                    }
-                } else {
-                    categories.push(newCategory);
-                }
-            } else if (editingId) {
-                const cat = findCategoryById(editingId);
-                if (cat) cat.name = name;
-            }
-
-            saveData();
-            hideForms();
-            render();
-        }
-
-        // Save Item
-        function handleSaveItem() {
-            const title = itemTitleInput.value.trim();
-            const url = itemUrlInput.value.trim();
-            const memo = itemMemoInput.value.trim();
-
-            if (!title) {
-                alert('제목을 입력해주세요!');
-                return;
-            }
-
-            if (!addingItemTo) {
-                alert('저장할 폴더(카테고리)를 선택해주세요!');
-                return;
-            }
-
-            const targetCategory = findCategoryById(addingItemTo);
-            if (!targetCategory) {
-                alert('선택한 폴더를 찾을 수 없습니다.');
-                return;
-            }
-
-            if (!targetCategory.items) targetCategory.items = [];
-
-            if (editingItem) {
-                const item = targetCategory.items.find(i => i.id === editingItem);
-                if (item) {
-                    item.title = title;
-                    item.url = url;
-                    item.memo = memo;
-                }
+                categories = updateCategories(categories);
             } else {
-                targetCategory.items.push({
-                    id: generateId(),
-                    title,
-                    url,
-                    memo
-                });
+                categories = [newCategory, ...categories];
             }
 
-            expandedCategories.add(targetCategory.id);
             saveData();
-            
-            // 공유 파라미터 정리
-            if (window.location.search) {
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-            sharedNotice.classList.add('hidden');
-
-            hideForms();
-            render();
-            alert('저장되었습니다!');
+            hideCategoryForm();
+            renderApp();
         }
 
-        function hideForms() {
-            categoryForm.classList.add('hidden');
-            itemForm.classList.add('hidden');
-            duplicateWarning.classList.add('hidden');
-            categorySelectGroup.classList.add('hidden');
-            isCreating = false;
+        function deleteCategory(categoryId) {
+            const deleteCategoryRecursive = (cats) => {
+                return cats.filter(cat => cat.id !== categoryId)
+                    .map(cat => ({
+                        ...cat,
+                        children: deleteCategoryRecursive(cat.children)
+                    }));
+            };
+            categories = deleteCategoryRecursive(categories);
+            saveData();
+            renderApp();
+        }
+
+        function updateCategoryName(categoryId, newName) {
+            const updateCategories = (cats) => {
+                return cats.map(cat => {
+                    if (cat.id === categoryId) {
+                        return { ...cat, name: newName };
+                    }
+                    if (cat.children.length > 0) {
+                        return { ...cat, children: updateCategories(cat.children) };
+                    }
+                    return cat;
+                });
+            };
+            categories = updateCategories(categories);
+            saveData();
             editingId = null;
+            renderApp();
+        }
+
+        // Item Management
+        function saveItem() {
+            const title = (itemTitleInput.value || '제목 없음').slice(0, 20);
+            const url = itemUrlInput.value;
+            const memo = itemMemoInput.value;
+
+            if (!title.trim() && !url.trim() && !memo.trim()) {
+                return;
+            }
+
+            const targetCategoryId = editingItem ? editingItem.categoryId : addingItemTo;
+            const newItem = {
+                id: editingItem ? editingItem.id : generateId(),
+                title: title,
+                url: url,
+                memo: memo,
+                createdAt: editingItem ? editingItem.createdAt : new Date().toISOString()
+            };
+
+            const updateCategories = (cats) => {
+                return cats.map(cat => {
+                    if (cat.id === targetCategoryId) {
+                        const updatedItems = editingItem 
+                            ? cat.items.map(item => item.id === editingItem.id ? newItem : item)
+                            : [...cat.items, newItem];
+                        return { ...cat, items: updatedItems };
+                    }
+                    if (cat.children.length > 0) {
+                        return { ...cat, children: updateCategories(cat.children) };
+                    }
+                    return cat;
+                });
+            };
+
+            categories = updateCategories(categories);
+            saveData();
+            hideItemForm();
+            renderApp();
+        }
+
+        function deleteItem(itemId, categoryId) {
+            const updateCategories = (cats) => {
+                return cats.map(cat => {
+                    if (cat.id === categoryId) {
+                        return { ...cat, items: cat.items.filter(item => item.id !== itemId) };
+                    }
+                    if (cat.children.length > 0) {
+                        return { ...cat, children: updateCategories(cat.children) };
+                    }
+                    return cat;
+                });
+            };
+            categories = updateCategories(categories);
+            saveData();
+            renderApp();
+        }
+
+        // UI State Management
+        function showCategoryForm(parent = null) {
+    // 4차 폴더에서 하위 폴더 생성 시도할 때 제한
+    if (parent && parent.level >= 4) {
+        alert('더 이상 폴더를 생성할 수 없습니다. 메인 카테고리를 새로 만드세요');
+        return;
+    }
+    
+    selectedParent = parent;
+    isCreating = true;
+    categoryFormTitle.textContent = parent ? `"${parent.name}" 하위 카테고리 추가` : '새 카테고리 추가';
+    categoryNameInput.value = '';
+    categoryForm.classList.remove('hidden');
+    categoryNameInput.focus();
+}
+
+        function hideCategoryForm() {
+            isCreating = false;
             selectedParent = null;
+            categoryForm.classList.add('hidden');
+            hideWarning();
+        }
+
+        function showItemForm(categoryId, item = null) {
+            addingItemTo = item ? null : categoryId;
+            editingItem = item ? { ...item, categoryId } : null;
+            
+            itemFormTitle.textContent = item ? '자료 수정' : '새 자료 추가';
+            itemTitleInput.value = item ? item.title : '';
+            itemUrlInput.value = item ? item.url : '';
+            itemMemoInput.value = item ? item.memo : '';
+            
+            // 현재 위치 표시
+            const targetId = item ? item.categoryId || categoryId : categoryId;
+            const path = findCategoryPath(targetId);
+            if (path) {
+                currentLocationPath.textContent = path.join(' > ');
+                currentLocation.classList.remove('hidden');
+            } else {
+                currentLocation.classList.add('hidden');
+            }
+            
+            itemForm.classList.remove('hidden');
+            itemTitleInput.focus();
+        }
+
+        function hideItemForm() {
             addingItemTo = null;
             editingItem = null;
+            itemForm.classList.add('hidden');
+            currentLocation.classList.add('hidden');
         }
 
-        // Search Processing
-        function filterCategoriesBySearch(list, term) {
-            let results = [];
-            list.forEach(category => {
-                let matchCategory = category.name.toLowerCase().includes(term.toLowerCase());
-                let matchedItems = (category.items || []).filter(item => 
-                    item.title.toLowerCase().includes(term.toLowerCase()) ||
-                    (item.url && item.url.toLowerCase().includes(term.toLowerCase())) ||
-                    (item.memo && item.memo.toLowerCase().includes(term.toLowerCase()))
-                );
-                
-                let matchedChildren = category.children ? filterCategoriesBySearch(category.children, term) : [];
-
-                if (matchCategory || matchedItems.length > 0 || matchedChildren.length > 0) {
-                    results.push({
-                        ...category,
-                        items: matchCategory ? category.items : matchedItems,
-                        children: matchedChildren
-                    });
-                }
-            });
-            return results;
+        function showWarning(message) {
+            warningText.textContent = message;
+            duplicateWarning.classList.remove('hidden');
         }
 
-        // Render Tree
-        function render() {
-            categoriesContainer.innerHTML = '';
-            
-            let displayList = categories;
-            if (searchTerm.trim()) {
-                displayList = filterCategoriesBySearch(categories, searchTerm.trim());
-                searchResults.classList.remove('hidden');
-                searchTermDisplay.textContent = searchTerm;
-                searchCount.textContent = countTotalCategories(displayList);
-            } else {
-                searchResults.classList.add('hidden');
-            }
-
-            if (categories.length === 0) {
-                emptyState.classList.remove('hidden');
-                noSearchResults.classList.add('hidden');
-                return;
-            } else {
-                emptyState.classList.add('hidden');
-            }
-
-            if (displayList.length === 0 && searchTerm.trim()) {
-                noSearchResults.classList.remove('hidden');
-                return;
-            } else {
-                noSearchResults.classList.add('hidden');
-            }
-
-            displayList.forEach(category => {
-                categoriesContainer.appendChild(createCategoryElement(category, 1));
-            });
+        function hideWarning() {
+            duplicateWarning.classList.add('hidden');
         }
 
-        function countTotalCategories(list) {
-            let count = list.length;
-            list.forEach(cat => {
-                if (cat.children) count += countTotalCategories(cat.children);
-            });
-            return count;
-        }
-
-        function createCategoryElement(category, level) {
-            const container = document.createElement('div');
-            container.className = 'category';
-
-            const header = document.createElement('div');
-            header.className = `category-header ${getColorClassForLevel(level)}`;
-            
-            const isExpanded = expandedCategories.has(category.id) || searchTerm.trim().length > 0;
-            const hasChildren = (category.children && category.children.length > 0) || (category.items && category.items.length > 0);
-
-            const itemCount = (category.items ? category.items.length : 0);
-
-            header.innerHTML = `
-                <div class="category-left">
-                    <span>${hasChildren ? (isExpanded ? '📂' : '📁') : '📄'}</span>
-                    <span class="category-name">${category.name}</span>
-                    ${itemCount > 0 ? `<span class="item-count">${itemCount}개</span>` : ''}
-                </div>
-                <div class="category-right">
-                    ${level < 4 ? `<button class="btn-icon add-sub-btn" title="하위 폴더 추가">➕</button>` : ''}
-                    <button class="btn-icon add-item-btn" title="자료 추가">📌</button>
-                    <button class="btn-icon edit-cat-btn" title="수정">✏️</button>
-                    <button class="btn-icon del-cat-btn" title="삭제">🗑️</button>
-                </div>
-            `;
-
-            // Toggle Expand
-            header.querySelector('.category-left').addEventListener('click', () => {
-                if (expandedCategories.has(category.id)) {
-                    expandedCategories.delete(category.id);
-                } else {
-                    expandedCategories.add(category.id);
-                }
-                render();
-            });
-
-            // Action Buttons
-            const addSubBtn = header.querySelector('.add-sub-btn');
-            if (addSubBtn) {
-                addSubBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    isCreating = true;
-                    selectedParent = category.id;
-                    categoryFormTitle.textContent = `'${category.name}' 하위 폴더 추가`;
-                    categoryNameInput.value = '';
-                    hideForms();
-                    categoryForm.classList.remove('hidden');
-                    categoryNameInput.focus();
-                });
-            }
-
-            header.querySelector('.add-item-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                addingItemTo = category.id;
-                editingItem = null;
-                itemFormTitle.textContent = '새 자료 추가';
-                const path = findCategoryPath(category.id);
-                currentLocationPath.textContent = path ? path.join(' > ') : category.name;
-                currentLocation.classList.remove('hidden');
-                categorySelectGroup.classList.add('hidden'); // 클릭으로 들어올 때는 셀렉트 숨김
-                itemTitleInput.value = '';
-                itemUrlInput.value = '';
-                itemMemoInput.value = '';
-                hideForms();
-                itemForm.classList.remove('hidden');
-                itemTitleInput.focus();
-            });
-
-            header.querySelector('.edit-cat-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                isCreating = false;
-                editingId = category.id;
-                categoryFormTitle.textContent = '카테고리 수정';
-                categoryNameInput.value = category.name;
-                hideForms();
-                categoryForm.classList.remove('hidden');
-                categoryNameInput.focus();
-            });
-
-            header.querySelector('.del-cat-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                openDeleteModal(category.name, () => {
-                    deleteCategory(category.id);
-                });
-            });
-
-            container.appendChild(header);
-
-            // Render Body (Items & Subcategories)
-            if (isExpanded) {
-                const bodyContainer = document.createElement('div');
-                bodyContainer.style.paddingLeft = '1rem';
-
-                // Items
-                if (category.items && category.items.length > 0) {
-                    const itemsContainer = document.createElement('div');
-                    itemsContainer.className = 'items-container';
-
-                    category.items.forEach(item => {
-                        const itemEl = document.createElement('div');
-                        itemEl.className = 'item';
-                        itemEl.innerHTML = `
-                            <div class="item-content">
-                                <div class="item-title">${item.title}</div>
-                                ${item.url ? `<a href="${item.url}" target="_blank" class="item-url">🔗 ${item.url}</a>` : ''}
-                                ${item.memo ? `<div class="item-memo">${item.memo}</div>` : ''}
-                            </div>
-                            <div class="item-actions">
-                                <button class="btn-icon edit-item-btn" title="수정">✏️</button>
-                                <button class="btn-icon del-item-btn" title="삭제">🗑️</button>
-                            </div>
-                        `;
-
-                        itemEl.querySelector('.edit-item-btn').addEventListener('click', () => {
-                            addingItemTo = category.id;
-                            editingItem = item.id;
-                            itemFormTitle.textContent = '자료 수정';
-                            const path = findCategoryPath(category.id);
-                            currentLocationPath.textContent = path ? path.join(' > ') : category.name;
-                            currentLocation.classList.remove('hidden');
-                            categorySelectGroup.classList.add('hidden');
-                            itemTitleInput.value = item.title;
-                            itemUrlInput.value = item.url || '';
-                            itemMemoInput.value = item.memo || '';
-                            hideForms();
-                            itemForm.classList.remove('hidden');
-                            itemTitleInput.focus();
-                        });
-
-                        itemEl.querySelector('.del-item-btn').addEventListener('click', () => {
-                            openDeleteModal(item.title, () => {
-                                category.items = category.items.filter(i => i.id !== item.id);
-                                saveData();
-                                render();
-                            });
-                        });
-
-                        itemsContainer.appendChild(itemEl);
-                    });
-
-                    bodyContainer.appendChild(itemsContainer);
-                }
-
-                // Subcategories
-                if (category.children && category.children.length > 0) {
-                    category.children.forEach(child => {
-                        bodyContainer.appendChild(createCategoryElement(child, level + 1));
-                    });
-                }
-
-                container.appendChild(bodyContainer);
-            }
-
-            return container;
-        }
-
-        // Delete Logic
-        function deleteCategory(id, list = categories) {
-            for (let i = 0; i < list.length; i++) {
-                if (list[i].id === id) {
-                    list.splice(i, 1);
-                    saveData();
-                    render();
-                    return true;
-                }
-                if (list[i].children && list[i].children.length > 0) {
-                    if (deleteCategory(id, list[i].children)) return true;
-                }
-            }
-            return false;
-        }
-
-        function openDeleteModal(name, onConfirm) {
+        function showDeleteModal(type, id, name, categoryId = null) {
+            deleteConfirmData = { type, id, name, categoryId };
             deleteItemName.textContent = name;
-            deleteConfirmData = onConfirm;
             deleteModal.classList.remove('hidden');
         }
 
-        cancelDeleteBtn.addEventListener('click', () => {
-            deleteModal.classList.add('hidden');
+        function hideDeleteModal() {
             deleteConfirmData = null;
-        });
-
-        confirmDeleteBtn.addEventListener('click', () => {
-            if (deleteConfirmData) deleteConfirmData();
             deleteModal.classList.add('hidden');
-            deleteConfirmData = null;
-        });
+        }
 
-        // Export/Import Data
-        document.getElementById('exportBtn').addEventListener('click', () => {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(categories, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `보물창고_백업_${new Date().toISOString().slice(0, 10)}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        });
+        function toggleCategory(categoryId) {
+            if (expandedCategories.has(categoryId)) {
+                expandedCategories.delete(categoryId);
+            } else {
+                expandedCategories.add(categoryId);
+                const cat = findCategoryById(categoryId);
+                if (cat) saveRecentFolder(categoryId, cat.name);
+            }
+            renderApp();
+        }
 
-        document.getElementById('importBtn').addEventListener('click', () => {
-            document.getElementById('importFileInput').click();
-        });
+        function toggleItems(categoryId) {
+            if (expandedItems.has(categoryId)) {
+                expandedItems.delete(categoryId);
+            } else {
+                expandedItems.add(categoryId);
+            }
+            renderApp();
+        }
 
-        document.getElementById('importFileInput').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+        // Rendering Functions
+        function renderCategory(category, depth = 0) {
+            const isExpanded = expandedCategories.has(category.id);
+            const isItemsExpanded = expandedItems.has(category.id);
+            const hasChildren = category.children && category.children.length > 0;
+            const hasItems = category.items && category.items.length > 0;
+            const colorClass = getColorClassForLevel(category.level);
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const importedData = JSON.parse(event.target.result);
-                    if (Array.isArray(importedData)) {
-                        categories = importedData;
-                        saveData();
-                        render();
-                        alert('데이터 복원이 완료되었습니다.');
-                    } else {
-                        alert('올바르지 않은 백업 파일 형식입니다.');
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'category';
+            categoryDiv.style.marginLeft = `${depth * 10}px`;
+
+            categoryDiv.innerHTML = `
+                <div class="category-header ${colorClass}">
+                    <div class="category-left">
+                        ${(hasChildren || hasItems) ? `
+                            <button class="btn-icon" onclick="toggleCategory('${category.id}')" title="펼치기/접기">
+                                <span style="font-size: 16px;">${isExpanded ? '▼' : '▶'}</span>
+                            </button>
+                        ` : '<div style="width: 24px;"></div>'}
+                        <span style="font-size: 18px;">📁</span>
+                        ${editingId === category.id ? `
+                            <input 
+                                type="text" 
+                                value="${category.name}" 
+                                class="form-input" 
+                                style="width: 200px; padding: 0.25rem 0.5rem; font-size: 0.875rem;"
+                                onkeypress="if(event.key==='Enter') updateCategoryName('${category.id}', this.value)"
+                                onblur="updateCategoryName('${category.id}', this.value)"
+                                id="editInput${category.id}"
+                            >
+                            
+                        ` : `
+                    <span class="category-name">${category.name.length > 4 ? category.name.slice(0, 4) + '..' : category.name}</span>
+                            ${hasItems ? `<span class="item-count">${category.items.length}개</span>` : ''}
+                        `}
+                    </div>
+                    <div class="category-right">
+                        ${editingId === category.id ? `
+                            <button class="btn-icon" onclick="updateCategoryName('${category.id}', document.getElementById('editInput${category.id}').value)" title="확정">
+                                <span style="font-size: 14px;">✅</span>
+                            </button>
+                        ` : `
+                            <button class="btn-icon" onclick="showItemForm('${category.id}')" title="자료 추가">
+                                <span style="font-size: 14px;">📄</span>
+                            </button>
+                            ${category.level < 4 ? `
+    <button class="btn-icon" onclick="showCategoryForm(findCategoryById('${category.id}'))" title="서브 카테고리 추가">
+        <span style="font-size: 14px;">+</span>
+    </button>
+` : ''}
+                            <button class="btn-icon" onclick="promptEditCategory('${category.id}','${category.name}')" title="이름 수정">
+                                <span style="font-size: 14px;">✏️</span>
+                            </button>
+                            <button class="btn-icon" onclick="moveCategoryUp('${category.id}')" title="위로 이동">
+                                <span style="font-size: 14px;">⬆️</span>
+                            </button>
+                            <button class="btn-icon" onclick="moveCategoryDown('${category.id}')" title="아래로 이동">
+                                <span style="font-size: 14px;">⬇️</span>
+                            </button>
+                            <button class="btn-icon" onclick="showDeleteModal('category', '${category.id}', '${category.name}')" title="삭제" style="color: #dc2626;">
+                                <span style="font-size: 14px;">🗑️</span>
+                            </button>
+                        `}
+                    </div>
+            `;
+
+            if (isExpanded) {
+                const expandedDiv = document.createElement('div');
+                expandedDiv.style.marginTop = '0.5rem';
+
+                // Items section
+                if (hasItems) {
+                    const itemsDiv = document.createElement('div');
+                    itemsDiv.className = 'items-container';
+                    itemsDiv.style.marginLeft = `10px`;
+                    itemsDiv.style.marginBottom = '0.5rem';
+
+                    itemsDiv.innerHTML = `
+                        <button class="items-toggle" onclick="toggleItems('${category.id}')">
+                            <span style="font-size: 14px;">${isItemsExpanded ? '▼' : '▶'}</span>
+                            <span style="font-size: 14px;">📄</span>
+                            <span>자료 (${category.items.length}개)</span>
+                        </button>
+                    `;
+
+                    if (isItemsExpanded) {
+                        const itemsList = document.createElement('div');
+                        itemsList.style.marginTop = '0.25rem';
+
+                  category.items.forEach(item => {
+                            const itemDiv = document.createElement('div');
+                            itemDiv.className = 'item';
+
+                            // 검색 중일 때는 제목만, 아닐 때는 전체 정보 표시
+                            if (searchTerm) {
+                                itemDiv.innerHTML = `
+                                    <div class="item-content" onclick='showItemForm("${category.id}", ${JSON.stringify({...item, categoryId: category.id}).replace(/"/g, "&quot;")})' style="cursor: pointer;">
+                                        <div class="item-title" style="color: #2563eb; text-decoration: underline;">${item.title}</div>
+                                    </div>
+                                    <div class="item-actions">
+                                        
+                                        <button class="btn-icon" onclick='showMoveModal("${item.id}", "${category.id}", ${JSON.stringify(item.title)})' title="이동">
+                                            <span style="font-size: 12px;">📁</span>
+                                        </button>
+                                        <button class="btn-icon" onclick='showCopyModal("${item.id}", "${category.id}", ${JSON.stringify(item.title)})' title="복사">
+                                            <span style="font-size: 12px;">📋</span>
+                                        </button>
+                                        <button class="btn-icon" onclick='showDeleteModal("item", "${item.id}", ${JSON.stringify(item.title)}, "${category.id}")' title="삭제" style="color: #dc2626;">
+                                            <span style="font-size: 12px;">🗑️</span>
+                                        </button>
+
+                                    </div>
+                                `;
+                           } else {
+                               itemDiv.innerHTML = `
+                                    <div class="item-content">
+                                        <div class="item-title">${item.title}</div>
+                                        ${item.url ? `<div class="item-url" onclick="window.open('${item.url}', '_blank')" style="cursor: pointer; color: #2563eb; text-decoration: underline;">🔗 링크 열기</div>` : ''}
+                                    </div>
+                                  <div class="item-actions">
+        <button class="btn-icon" onclick="showItemForm('${category.id}', ${JSON.stringify(item).replace(/"/g, '&quot;')})" title="수정">
+            <span style="font-size: 12px;">✏️</span>
+        </button>
+        <button class="btn-icon" onclick='showMoveModal("${item.id}", "${category.id}", ${JSON.stringify(item.title)})' title="이동">
+            <span style="font-size: 12px;">📁</span>
+        </button>
+
+        <button class="btn-icon" onclick='showCopyModal("${item.id}", "${category.id}", ${JSON.stringify(item.title)})' title="복사">
+            <span style="font-size: 12px;">📋</span>
+        </button>
+        <button class="btn-icon" onclick='showDeleteModal("item", "${item.id}", ${JSON.stringify(item.title)}, "${category.id}")' title="삭제" style="color: #dc2626;">
+            <span style="font-size: 12px;">🗑️</span>
+        </button>
+    </div>
+                                `;
+                            }
+                            itemsList.appendChild(itemDiv);
+                        });
+
+                        itemsDiv.appendChild(itemsList);
                     }
-                } catch (err) {
-                    alert('파일을 읽는 중 오류가 발생했습니다.');
+
+                    expandedDiv.appendChild(itemsDiv);
+                }
+
+                // Children categories
+                if (hasChildren) {
+                    const childrenDiv = document.createElement('div');
+                    category.children.forEach(child => {
+                        childrenDiv.appendChild(renderCategory(child, depth + 1));
+                    });
+                    expandedDiv.appendChild(childrenDiv);
+                }
+
+                categoryDiv.appendChild(expandedDiv);
+            }
+
+            // Auto-focus edit input
+            if (editingId === category.id) {
+                setTimeout(() => {
+                    const editInput = document.getElementById(`editInput${category.id}`);
+                    if (editInput) {
+                        editInput.focus();
+                        editInput.select();
+                    }
+                }, 0);
+            }
+
+            // 드래그 이벤트 추가
+            const header = categoryDiv.querySelector('.category-header');
+            header.draggable = true;
+            
+            header.addEventListener('dragstart', (e) => {
+                header.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', category.id);
+            });
+            
+            header.addEventListener('dragend', (e) => {
+                header.classList.remove('dragging');
+                document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            });
+            
+            header.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                header.classList.add('drag-over');
+            });
+            
+            header.addEventListener('dragleave', (e) => {
+                header.classList.remove('drag-over');
+            });
+            
+            header.addEventListener('drop', (e) => {
+                e.preventDefault();
+                header.classList.remove('drag-over');
+                
+                const draggedId = e.dataTransfer.getData('text/plain');
+                const targetId = category.id;
+                
+                if (draggedId !== targetId) {
+                    swapCategories(draggedId, targetId);
+                }
+            });
+
+            return categoryDiv;
+        }
+
+        function renderApp() {
+            const container = categoriesContainer;
+            container.innerHTML = '';
+
+            const currentCategories = searchTerm ? filteredCategories : categories;
+            
+           // Show/hide search results info
+if (searchTerm) {
+    searchTermDisplay.textContent = searchTerm;
+    searchCount.textContent = filteredCategories.length;
+    searchResults.classList.remove('hidden');
+    // homeBtn.classList.remove('hidden'); // 이 줄을 주석처리해서 파란색 버튼 안나오게 함
+} else {
+    searchResults.classList.add('hidden');
+    homeBtn.classList.add('hidden');
+}
+
+            // Show/hide empty states
+            if (categories.length === 0) {
+                emptyState.classList.remove('hidden');
+                noSearchResults.classList.add('hidden');
+            } else if (searchTerm && filteredCategories.length === 0) {
+                emptyState.classList.add('hidden');
+                noSearchResults.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                noSearchResults.classList.add('hidden');
+                
+                // Render categories
+                if (!searchTerm && recentFolders.length > 0) {
+                    const recentIds = recentFolders.map(f => f.id);
+                    const recentTop = currentCategories.filter(c => recentIds.includes(c.id));
+                    const others = currentCategories.filter(c => !recentIds.includes(c.id));
+                    recentTop.sort((a, b) => recentIds.indexOf(a.id) - recentIds.indexOf(b.id));
+
+                    recentTop.forEach(category => container.appendChild(renderCategory(category)));
+                    others.forEach(category => container.appendChild(renderCategory(category)));
+                } else {
+                    currentCategories.forEach(category => {
+                        container.appendChild(renderCategory(category));
+                    });
+                }
+            }
+        }
+
+        // Event Listeners
+        function initializeEventListeners() {
+            // Search
+            searchInput.addEventListener('input', (e) => {
+                searchTerm = e.target.value;
+                searchCategories(searchTerm);
+                
+                if (searchTerm) {
+                    clearSearchBtn.classList.remove('hidden');
+                } else {
+                    clearSearchBtn.classList.add('hidden');
+                    filteredCategories = [];
+                }
+                
+                renderApp();
+            });
+
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                searchTerm = '';
+                filteredCategories = [];
+                clearSearchBtn.classList.add('hidden');
+                renderApp();
+            });
+
+            homeBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                searchTerm = '';
+                filteredCategories = [];
+                clearSearchBtn.classList.add('hidden');
+                expandedCategories.clear();
+                expandedItems.clear();
+                renderApp();
+            });
+            // 초기화면 버튼
+document.getElementById('resetBtn').addEventListener('click', () => {
+    searchInput.value = '';
+    searchTerm = '';
+    filteredCategories = [];
+    clearSearchBtn.classList.add('hidden');
+    expandedCategories.clear();
+    expandedItems.clear();
+    renderApp();
+});
+
+            // Category form
+            addCategoryBtn.addEventListener('click', () => showCategoryForm());
+            saveCategoryBtn.addEventListener('click', addCategory);
+            cancelCategoryBtn.addEventListener('click', hideCategoryForm);
+            
+            categoryNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addCategory();
+            });
+
+            categoryNameInput.addEventListener('input', () => {
+                hideWarning();
+            });
+
+            // Item form
+            saveItemBtn.addEventListener('click', saveItem);
+            cancelItemBtn.addEventListener('click', hideItemForm);
+
+            // Delete modal
+            // Move modal events
+            document.getElementById('cancelMoveBtn').addEventListener('click', hideMoveModal);
+            document.getElementById('moveModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('moveModal')) {
+                    hideMoveModal();
+                }
+            });
+
+            // Modal background click
+            deleteModal.addEventListener('click', (e) => {
+                if (e.target === deleteModal) {
+                    hideDeleteModal();
+                }
+            });
+            cancelDeleteBtn.addEventListener('click', hideDeleteModal);
+            confirmDeleteBtn.addEventListener('click', () => {
+                if (deleteConfirmData) {
+                    if (deleteConfirmData.type === 'category') {
+                        deleteCategory(deleteConfirmData.id);
+                    } else {
+                        deleteItem(deleteConfirmData.id, deleteConfirmData.categoryId);
+                    }
+                }
+                hideDeleteModal();
+            });
+
+            // 백업/복원 버튼
+            document.getElementById('exportBtn').addEventListener('click', exportData);
+            document.getElementById('importBtn').addEventListener('click', () => {
+                document.getElementById('importFile').click();
+            });
+            document.getElementById('importFile').addEventListener('change', importData);
+        }
+// Move/Copy Functions
+        let moveModalData = null;
+
+        
+
+        function renderFolderList() {
+            const folderList = document.getElementById('folderList');
+            folderList.innerHTML = '';
+
+            const renderFolder = (category, depth = 0) => {
+                const folderDiv = document.createElement('div');
+                folderDiv.style.marginLeft = `${depth * 20}px`;
+                folderDiv.style.padding = '0.5rem';
+                folderDiv.style.border = '1px solid #e5e7eb';
+                folderDiv.style.borderRadius = '0.25rem';
+                folderDiv.style.margin = '0.25rem 0';
+                folderDiv.style.cursor = 'pointer';
+                const colorClass = getColorClassForLevel(category.level);
+                folderDiv.className = colorClass;
+                if (category.id === moveModalData.fromCategoryId) {
+                    folderDiv.style.opacity = '0.5';
+                }
+
+                if (category.id === moveModalData.fromCategoryId) {
+                    folderDiv.style.opacity = '0.5';
+                    const indentBars = '│ '.repeat(Math.max(0, depth));
+                    const levelPrefix = '';
+                    folderDiv.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-family: monospace; color: #888; font-size: 14px;">${indentBars}${levelPrefix}</span>
+                            <span style="font-size: 18px;">📁</span>
+                            <span style="font-weight: 500;">${category.name}</span>
+                            <span style="font-size: 0.75rem; opacity: 0.7; font-weight: bold;">(${category.level}차)</span>
+                            <span style="font-size: 0.75rem; opacity: 0.7; color: #dc2626;">(현재 위치)</span>
+                        </div>
+                    `;
+                } else {
+                    const indentBars = '│ '.repeat(Math.max(0, depth));
+                    const levelPrefix = '';
+                    folderDiv.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="font-family: monospace; color: #888; font-size: 14px;">${indentBars}${levelPrefix}</span>
+                            <span style="font-size: 18px;">📁</span>
+                            <span style="font-weight: 500;">${category.name}</span>
+                            <span style="font-size: 0.75rem; opacity: 0.7; font-weight: bold;">(${category.level}차)</span>
+                        </div>
+                    `;
+                    folderDiv.onclick = () => moveOrCopyItem(category.id, category.name);
+                    folderDiv.onmouseover = () => folderDiv.style.background = '#f9fafb';
+                    folderDiv.onmouseout = () => folderDiv.style.background = 'white';
+                }
+                
+                folderList.appendChild(folderDiv);
+
+                if (category.children) {
+                    category.children.forEach(child => renderFolder(child, depth + 1));
+                }
+            };
+
+            categories.forEach(category => renderFolder(category));
+        }
+
+        function moveOrCopyItem(toCategoryId, toCategoryName) {
+            const { itemId, fromCategoryId, itemTitle, type } = moveModalData;
+            
+            // 원본 아이템 찾기
+            let sourceItem = null;
+            const findItem = (cats) => {
+                for (let cat of cats) {
+                    const item = cat.items.find(item => item.id === itemId);
+                    if (item) return item;
+                    if (cat.children.length > 0) {
+                        const childItem = findItem(cat.children);
+                        if (childItem) return childItem;
+                    }
+                }
+                return null;
+            };
+            sourceItem = findItem(categories);
+
+            if (!sourceItem) return;
+
+            // 대상 폴더에 아이템 추가
+            const updateCategories = (cats) => {
+                return cats.map(cat => {
+                    if (cat.id === toCategoryId) {
+                        const newItem = {
+                            ...sourceItem,
+                            id: type === 'copy' ? generateId() : sourceItem.id
+                        };
+                        return { ...cat, items: [...cat.items, newItem] };
+                    }
+                    if (cat.children.length > 0) {
+                        return { ...cat, children: updateCategories(cat.children) };
+                    }
+                    return cat;
+                });
+            };
+
+            categories = updateCategories(categories);
+
+            // 이동의 경우 원본에서 제거
+            if (type === 'move') {
+                const removeFromSource = (cats) => {
+                    return cats.map(cat => {
+                        if (cat.id === fromCategoryId) {
+                            return { ...cat, items: cat.items.filter(item => item.id !== itemId) };
+                        }
+                        if (cat.children.length > 0) {
+                            return { ...cat, children: removeFromSource(cat.children) };
+                        }
+                        return cat;
+                    });
+                };
+                categories = removeFromSource(categories);
+            }
+
+            saveData();
+            document.getElementById('moveModal').classList.add('hidden');
+            alert(`✅ "${itemTitle}"을(를) "${toCategoryName}" 폴더로 ${type === 'move' ? '이동' : '복사'}했습니다!`);
+            renderApp();
+        }
+
+        function hideMoveModal() {
+            moveModalData = null;
+            document.getElementById('moveModal').classList.add('hidden');
+        }
+
+        function showMoveModal(itemId, fromCategoryId, itemTitle) {
+            moveModalData = { itemId, fromCategoryId, itemTitle, type: 'move' };
+            document.getElementById('moveModalTitle').textContent = '자료 이동';
+            document.querySelector('#moveModal .modal-content p').textContent = '어느 폴더로 이동하시겠습니까?';
+            renderFolderList();
+            document.getElementById('moveModal').classList.remove('hidden');
+        }
+
+        function showCopyModal(itemId, fromCategoryId, itemTitle) {
+            moveModalData = { itemId, fromCategoryId, itemTitle, type: 'copy' };
+            document.getElementById('moveModalTitle').textContent = '자료 복사';
+            document.querySelector('#moveModal .modal-content p').textContent = '어느 폴더로 복사하시겠습니까?';
+            renderFolderList();
+            document.getElementById('moveModal').classList.remove('hidden');
+        }
+
+         // 폴더 위치 이동 함수들
+        function moveCategoryUp(categoryId) {
+            const category = findCategoryById(categoryId);
+            if (!category) return;
+
+            const parentCategories = category.parentId 
+                ? findCategoryById(category.parentId).children 
+                : categories;
+
+            const index = parentCategories.findIndex(cat => cat.id === categoryId);
+            if (index > 0) {
+                // 배열에서 위치 바꾸기
+                [parentCategories[index], parentCategories[index - 1]] = 
+                [parentCategories[index - 1], parentCategories[index]];
+                
+                saveData();
+                renderApp();
+            }
+        }
+
+        function moveCategoryDown(categoryId) {
+            const category = findCategoryById(categoryId);
+            if (!category) return;
+
+            const parentCategories = category.parentId 
+                ? findCategoryById(category.parentId).children 
+                : categories;
+
+            const index = parentCategories.findIndex(cat => cat.id === categoryId);
+            if (index < parentCategories.length - 1) {
+                // 배열에서 위치 바꾸기
+                [parentCategories[index], parentCategories[index + 1]] = 
+                [parentCategories[index + 1], parentCategories[index]];
+                
+                saveData();
+                renderApp();
+            }
+        }
+        function checkCategoryNameLength(input) {
+            if (input.value.length >= 5) {
+                showWarning('폴더명은 5자 이내로 입력해주세요');
+            } else {
+                hideWarning();
+            }
+        }
+        function swapCategories(draggedId, targetId) {
+            // 같은 레벨의 카테고리들을 찾는 함수
+            function findSameLevelCategories(catId, cats = categories, parent = null) {
+                for (let i = 0; i < cats.length; i++) {
+                    if (cats[i].id === catId) {
+                        return { list: cats, parent: parent };
+                    }
+                    if (cats[i].children && cats[i].children.length > 0) {
+                        const found = findSameLevelCategories(catId, cats[i].children, cats[i]);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            }
+            
+            const draggedLocation = findSameLevelCategories(draggedId);
+            const targetLocation = findSameLevelCategories(targetId);
+            
+            // 같은 레벨에 있는지 확인
+            if (draggedLocation && targetLocation && draggedLocation.list === targetLocation.list) {
+                const list = draggedLocation.list;
+                const draggedIndex = list.findIndex(cat => cat.id === draggedId);
+                const targetIndex = list.findIndex(cat => cat.id === targetId);
+                
+                if (draggedIndex !== -1 && targetIndex !== -1) {
+                    [list[draggedIndex], list[targetIndex]] = [list[targetIndex], list[draggedIndex]];
+                    saveData();
+                    renderApp();
+                }
+            }
+        }
+        function toggleDataManagement() {
+            const menu = document.getElementById('data-management');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // 백업 함수
+        function exportData() {
+            const data = {
+                categories: categories,
+                exportDate: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `보물창고_백업_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('✅ 백업이 완료되었습니다!');
+        }
+
+        // 복원 함수
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.categories) {
+                        if (confirm('⚠️ 기존 데이터가 모두 교체됩니다. 계속하시겠습니까?')) {
+                            categories = data.categories;
+                            saveData();
+                            renderApp();
+                            alert('✅ 복원이 완료되었습니다!');
+                        }
+                    } else {
+                        alert('❌ 올바른 백업 파일이 아닙니다.');
+                    }
+                } catch (error) {
+                    alert('❌ 파일을 읽을 수 없습니다.');
                 }
             };
             reader.readAsText(file);
+            
+            // 파일 입력 초기화
+            event.target.value = '';
+        }
+            // Folder Selection Modal Functions
+        function showFolderSelectionModal() {
+            // 폴더 선택 모달 HTML 동적 생성
+            const modalHTML = `
+                <div id="folderSelectionModal" class="modal-overlay">
+                    <div class="modal">
+                        <h3 class="modal-title">📁 저장할 폴더 선택</h3>
+                        <div class="modal-content">
+                            <p>🎬 공유받은 영상을 어느 폴더에 저장하시겠습니까?</p>
+                            <div style="margin-bottom: 0.75rem;">
+                                <input type="text" id="newFolderInput" placeholder="새 폴더명 입력 (5자 이내)" maxlength="5" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none;">
+                                <button onclick="addFolderFromModal()" style="margin-top: 0.5rem; width: 100%; padding: 0.5rem; background: #ea580c; color: white; border: none; border-radius: 0.5rem; font-size: 0.875rem; cursor: pointer;">+ 새 폴더 만들기</button>
+                            </div>
+                            <div id="folderSelectionList" style="max-height: 250px; overflow-y: auto; margin: 1rem 0;">
+                                <!-- 폴더 목록이 여기에 들어감 -->
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button onclick="closeFolderSelectionModal()" class="btn btn-gray">취소</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 모달을 body에 추가
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // 폴더 목록 렌더링
+            renderFolderSelectionList();
+        }
+
+        function renderFolderSelectionList() {
+            const folderList = document.getElementById('folderSelectionList');
+            folderList.innerHTML = '';
+
+            const renderFolder = (category, depth = 0) => {
+                const folderDiv = document.createElement('div');
+                folderDiv.style.marginLeft = `${depth * 20}px`;
+                folderDiv.style.padding = '0.75rem';
+                folderDiv.style.border = '2px solid';
+                folderDiv.style.borderRadius = '0.5rem';
+                folderDiv.style.margin = '0.5rem 0';
+                folderDiv.style.cursor = 'pointer';
+                folderDiv.style.transition = 'all 0.2s';
+                
+                const colorClass = getColorClassForLevel(category.level);
+                folderDiv.className = colorClass;
+                
+                // 레벨별 들여쓰기 시각화
+                const indentBars = '│ '.repeat(Math.max(0, depth));
+                const levelPrefix = '';
+                
+                folderDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-family: monospace; color: #888; font-size: 14px;">${indentBars}${levelPrefix}</span>
+                        <span style="font-size: 18px;">📁</span>
+                        <span style="font-weight: 500;">${category.name}</span>
+                        <span style="font-size: 0.75rem; opacity: 0.7; font-weight: bold;">(${category.level}차)</span>
+                    </div>
+                `;
+                
+                folderDiv.onclick = () => confirmFolderSelection(category.id, category.name);
+                folderDiv.onmouseover = () => {
+                    folderDiv.style.transform = 'scale(1.02)';
+                    folderDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                };
+                folderDiv.onmouseout = () => {
+                    folderDiv.style.transform = 'scale(1)';
+                    folderDiv.style.boxShadow = 'none';
+                };
+                
+                folderList.appendChild(folderDiv);
+
+                // 하위 폴더들도 표시
+                if (category.children && category.children.length > 0) {
+                    category.children.forEach(child => renderFolder(child, depth + 1));
+                }
+            };
+
+            if (recentFolders.length > 0) {
+                const recentIds = recentFolders.map(f => f.id);
+                const getAllCategories = (cats, result = []) => {
+                    cats.forEach(cat => {
+                        result.push(cat);
+                        if (cat.children && cat.children.length > 0) getAllCategories(cat.children, result);
+                    });
+                    return result;
+                };
+                const allCats = getAllCategories(categories);
+                const recentCats = recentIds.map(id => allCats.find(c => c.id === id)).filter(Boolean);
+
+                recentCats.forEach(cat => renderFolder(cat, 0));
+            }
+
+            categories.forEach(category => renderFolder(category));
+        }
+        
+        function saveRecentFolder(categoryId, categoryName) {
+            recentFolders = recentFolders.filter(f => f.id !== categoryId);
+            recentFolders.unshift({ id: categoryId, name: categoryName, lastUsed: Date.now() });
+            if (recentFolders.length > 10) recentFolders = recentFolders.slice(0, 10);
+            localStorage.setItem('recentFolders', JSON.stringify(recentFolders));
+        }
+        function confirmFolderSelection(categoryId, categoryName) {
+            saveRecentFolder(categoryId, categoryName);
+            selectFolderAndSave(categoryId, categoryName);
+        }
+
+       function selectFolderAndSave(categoryId, categoryName) {
+            // 공유 데이터 가져오기
+            const sharedData = window.sharedData;
+            if (!sharedData) return;
+            
+            // URL 자동 추출
+            let finalUrl = sharedData.url || '';
+            let finalMemo = sharedData.text || '';
+            
+            // text에 URL이 있으면 추출
+            if (!finalUrl && finalMemo) {
+                const urlMatch = finalMemo.match(/(https?:\/\/[^\s]+)/);
+                if (urlMatch) {
+                    finalUrl = urlMatch[0];
+                    finalMemo = finalMemo.replace(urlMatch[0], '').trim();
+                }
+            }
+            
+           // 새 아이템 생성
+            const newItem = {
+                id: generateId(),
+                title: (sharedData.title || '제목 없음').slice(0, 20),
+                url: finalUrl,
+                memo: finalMemo,
+                createdAt: new Date().toISOString()
+            };
+
+            // 선택된 폴더에 아이템 추가
+            const updateCategories = (cats) => {
+                return cats.map(cat => {
+                    if (cat.id === categoryId) {
+                        return { ...cat, items: [...cat.items, newItem] };
+                    }
+                    if (cat.children.length > 0) {
+                        return { ...cat, children: updateCategories(cat.children) };
+                    }
+                    return cat;
+                });
+            };
+
+            categories = updateCategories(categories);
+            saveData();
+            
+            // 모달 닫기
+            closeFolderSelectionModal();
+            
+            // 성공 메시지
+            alert(`✅ "${newItem.title}"이(가) "${categoryName}" 폴더에 저장되었습니다!`);
+            
+            // 화면 새로고침
+            renderApp();
+            
+            // 공유 데이터 정리
+            delete window.sharedData;
+        }
+
+        function addFolderFromModal() {
+            const input = document.getElementById('newFolderInput');
+            const name = input.value.trim();
+            if (!name) {
+                alert('폴더명을 입력해주세요.');
+                return;
+            }
+            if (checkDuplicateName(name)) {
+                alert('같은 이름의 폴더가 있습니다.');
+                return;
+            }
+            const newCategory = {
+                id: generateId(),
+                name: name,
+                level: 1,
+                parentId: null,
+                children: [],
+                items: []
+            };
+            categories = [...categories, newCategory];
+            saveData();
+            input.value = '';
+            renderFolderSelectionList();
+        }
+
+        function closeFolderSelectionModal() {
+            const modal = document.getElementById('folderSelectionModal');
+            if (modal) {
+                modal.remove();
+            }
+            // 공유 데이터 정리
+            delete window.sharedData;
+        }
+        // Initialize App
+        async function initializeApp() {
+            categories = loadData();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const sharedTitle = urlParams.get('title');
+            const sharedText = urlParams.get('text');
+            const sharedUrl = urlParams.get('url');
+            const isShared = sharedTitle || sharedText || sharedUrl;
+
+            if (isShared && categories.length > 0) {
+                window.sharedData = {
+                    title: sharedTitle,
+                    url: sharedUrl,
+                    text: sharedText
+                };
+                document.getElementById('splash-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                document.getElementById('data-management').style.display = 'none';
+                initializeEventListeners();
+                renderApp();
+                showFolderSelectionModal();
+            } else if (isShared && categories.length === 0) {
+                alert('📁 먼저 카테고리를 만든 후 공유 기능을 사용해주세요!');
+            } else {
+                setTimeout(() => {
+                    document.getElementById('splash-screen').style.display = 'none';
+                    document.getElementById('main-app').style.display = 'block';
+                    document.getElementById('data-management').style.display = 'none';
+                    initializeEventListeners();
+                    renderApp();
+                }, 3000);
+            }
+
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/bomultest/sw.js');
+            }
+        }
+
+
+    
+        // 전역 함수 등록
+        window.showDeleteModal = showDeleteModal;
+        window.showMoveModal = showMoveModal;
+        window.showCopyModal = showCopyModal;
+        window.hideMoveModal = hideMoveModal;
+        window.moveOrCopyItem = moveOrCopyItem;
+        window.findCategoryById = findCategoryById;
+        window.toggleCategory = toggleCategory;
+        window.toggleItems = toggleItems;
+        window.showCategoryForm = showCategoryForm;
+        window.showItemForm = showItemForm;
+        window.moveCategoryUp = moveCategoryUp;
+        window.moveCategoryDown = moveCategoryDown;
+        window.updateCategoryName = updateCategoryName;
+        window.swapCategories = swapCategories;
+        window.toggleDataManagement = toggleDataManagement;
+        window.addFolderFromModal = addFolderFromModal;
+        window.startEditing = function(id) { editingId = id; renderApp(); };
+        window.promptEditCategory = function(id, currentName) {
+            var newName = prompt('새 폴더명 입력 (5자 이내):', currentName);
+            if (newName && newName.trim() && newName.trim() !== currentName) {
+                updateCategoryName(id, newName.trim().slice(0, 5));
+            }
+        };
+
+        // Start the app when DOM is loaded
+        window.onload = function() {
+            initializeApp();
+        };
+
+        window.addEventListener('popstate', function() {
+            history.pushState(null, '', location.href);
         });
+
+        history.pushState(null, '', location.href);
     </script>
+    <input type="file" id="importFile" accept=".json" style="display: none;">
 </body>
 </html>
