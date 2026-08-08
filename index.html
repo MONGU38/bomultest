@@ -2096,7 +2096,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
                 children: [],
                 items: []
             };
-            categories = [...categories, newCategory];
+            categories = [newCategory, ...categories];
             saveData();
             input.value = '';
             renderFolderSelectionList();
